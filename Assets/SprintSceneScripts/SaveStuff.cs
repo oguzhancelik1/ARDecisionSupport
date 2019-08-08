@@ -6,7 +6,7 @@ using UnityEngine;
 public class SaveStuff : MonoBehaviour
 {
     public ActorData data = new ActorData();
-    public InstantiationObject instantiationObject = new InstantiationObject();
+     InstantiationObject instantiationObject = new InstantiationObject();
 
     public string name;
     public Vector3 pos;
@@ -16,8 +16,17 @@ public class SaveStuff : MonoBehaviour
 
     public void StoreData()
     {
-        string ad =instantiationObject.InstanceIdGetter();
-        GameObject go = GameObject.Find(ad);
+        try
+        {
+            name = instantiationObject.InstanceIdGetter();
+        }
+        catch(Exception ex)
+        {
+
+            Debug.Log("instance id :" + instantiationObject.InstanceIdGetter());
+        }
+       
+        GameObject go = GameObject.Find(name);
         Transform tr;
         go.transform.parent = instantiationObject.SetTransform();
         Vector3 vector3 = instantiationObject.SetPosition();
@@ -28,7 +37,7 @@ public class SaveStuff : MonoBehaviour
         Transform tr = go.transform;*/
       
 
-        data.name = ad;
+        data.name = name;
         data.transform = tr;
         //data.pos = vector3;
         

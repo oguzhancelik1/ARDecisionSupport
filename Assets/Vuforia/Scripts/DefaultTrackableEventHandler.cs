@@ -17,6 +17,8 @@ using Vuforia;
 /// </summary>
 public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandler
 {
+    public GameObject ExistingPrefab;
+    public GameObject ImageTarget;
     #region PROTECTED_MEMBER_VARIABLES
 
     protected TrackableBehaviour mTrackableBehaviour;
@@ -102,6 +104,33 @@ public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandle
             // Enable canvas':
             foreach (var component in canvasComponents)
                 component.enabled = true;
+
+            //Restore Saved position data
+            //If the restored data are all zeros, ignore
+            if(    PlayerPrefs.GetFloat("TransformPosX") == 0 
+                && PlayerPrefs.GetFloat("TransformPosY") == 0 
+                && PlayerPrefs.GetFloat("TransformPosZ") == 0)
+            {
+                Debug.Log("All restored data are zeros.");
+            }else //There are valid position data
+            {
+                Debug.Log("There are valid data restored.");
+
+                //Instantiate a new GameObject
+                GameObject prefabInstance;
+                prefabInstance = Instantiate(ExistingPrefab);
+
+                //Set the ImageTarget as a parent
+                prefabInstance.transform.parent = ImageTarget.transform;
+
+                //Set the local position of the newly created gameobject into the ones in PlayerPrefs
+                prefabInstance.transform.localPosition = new Vector3(PlayerPrefs.GetFloat("TransformPosX"), PlayerPrefs.GetFloat("TransformPosY"), PlayerPrefs.GetFloat("TransformPosZ"));
+
+                //Set the rotation to Zeros
+                prefabInstance.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                //Set the layer for raycast masking
+                prefabInstance.layer = 9;
+            }
         }
     }
 

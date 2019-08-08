@@ -19,14 +19,14 @@ public class InstantiationObject : MonoBehaviour
     public GameObject prefabInstance;
     public Transform target;
     
-    public Vector3 temp;
+    public Vector3 SavedTransformPosition;
 
     public static int x;
     public string instance_id_String;
     
 
 
-    public void OnClick()
+    public void CreateNewObjectButton()
     {
         try
         {
@@ -40,17 +40,25 @@ public class InstantiationObject : MonoBehaviour
                     prefabInstance.transform.localPosition = new Vector3(0f + PositionShift, 0f, 0f);
                     prefabInstance.transform.localRotation = new Quaternion(0, 0, 0, 0);
                     PositionShift = PositionShift + 1f;
+                    prefabInstance.layer = 9;
+                    /*
                     //name the instance with its id number 
                     prefabInstance.name = prefabInstance.GetInstanceID().ToString();
+                    
                     //get the id of each prefab instance
                     instance_id = prefabInstance.GetInstanceID();
                     instance_id_String = instance_id.ToString();
-                    temp = (GameObject.Find(instance_id_String)).transform.localPosition;// MIGHT NEED TO DRAG IT UPWARDS
-                    //Debug.Log("prefab instance is"+instance_id);
-                    // add ids to the Instances array
-                    //Instances.Insert(Instances_Array_index, instance_id);
-                    // set the layer 8, for each instance so that they are collidible
-                    prefabInstance.layer = 9;                       
+
+                    //Saving the transform local position
+                    SavedTransformPosition = (GameObject.Find(instance_id_String)).transform.localPosition;
+
+                    //Save the new ID
+
+                    //Save the new transform position
+                    PlayerPrefs.SetFloat("TransformPosX", SavedTransformPosition.x);
+                    PlayerPrefs.SetFloat("TransformPosY", SavedTransformPosition.y);
+                    PlayerPrefs.SetFloat("TransformPosZ", SavedTransformPosition.z);
+                    */
                     break;
             }
             //Instances_Array_index++;
@@ -68,7 +76,7 @@ public class InstantiationObject : MonoBehaviour
     public Vector3 SetPosition()
     {
         Vector3 temposition;
-        temposition = temp;
+        temposition = SavedTransformPosition;
         
 
         return temposition;

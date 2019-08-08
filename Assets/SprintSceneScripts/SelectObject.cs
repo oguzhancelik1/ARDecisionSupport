@@ -8,7 +8,7 @@ using System;
 
 public class SelectObject : InstantiationObject
 {
-   // public GameObject Button_move;
+    // public GameObject Button_move;
     public int counter;
     private int id_to_move;
     int layerMask = 1 << 9;
@@ -19,8 +19,8 @@ public class SelectObject : InstantiationObject
 
     void Start()
     {
-     
-            
+
+
     }
 
     public void GetObjectToMove()
@@ -31,8 +31,8 @@ public class SelectObject : InstantiationObject
              id_to_move = -1;
          }
          return id_to_move;*/
-         
-       
+
+
     }
     //set color to default for the object deselected
     public void ObjectDeselected()
@@ -51,11 +51,11 @@ public class SelectObject : InstantiationObject
         rend.material.SetColor("_Color", Color.green);
     }
 
-   
-   
+
+
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) 
+        if (Input.GetMouseButtonDown(0))
         {
             //create ray and RaycastHit objects
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
@@ -69,6 +69,34 @@ public class SelectObject : InstantiationObject
 
                 Debug.Log("hit_instance_id is : " + hit_instance_id);
 
+                //Increment the x position of the hit object by 0.1f
+                hit.transform.localPosition = new Vector3(hit.transform.localPosition.x+0.1f, hit.transform.localPosition.y, hit.transform.localPosition.z);
+
+                //Save the new position data
+                PlayerPrefs.SetFloat("TransformPosX", hit.transform.localPosition.x);
+                PlayerPrefs.SetFloat("TransformPosY", hit.transform.localPosition.y);
+                PlayerPrefs.SetFloat("TransformPosZ", hit.transform.localPosition.z);
+                Debug.Log("New position data stored.");
+            }
+        }
+    }
+}
+
+
+#if false
+ //check if the ray collides with the objects 
+                if (Physics.Raycast(ray, out hitInfo, layerMask))
+            {
+                //get the collided objects name(its instance id)
+                hit_instance_id = hitInfo.transform.name;
+
+                Debug.Log("hit_instance_id is : " + hit_instance_id);
+
+                //rotate the object with every click
+
+                GameObject TargetGO = GameObject.Find(hit_instance_id);
+                TargetGO.transform.localPosition = new Vector3(TargetGO.transform.localPosition.x + 0.1f, TargetGO.transform.localPosition.y, TargetGO.transform.localPosition.z);
+                
 
                 /*ObjectSelected();
                 Button_move.SetActive(true);
@@ -82,23 +110,25 @@ public class SelectObject : InstantiationObject
                     Debug.Log("elements in Instances are : " + Instances[counter]);
                 }*/
 
-               /* switch(countStep)
-                    {
-                    default:
-                Instances.Insert(Instances_Array_index, hit_instance_id);
-                        break;
-                    }
-                //rotate the object with every click
-                temp = GameObject.Find(hit_instance_id);
-                temp.transform.Rotate(0, 4, 3);
+                /* switch(countStep)
+                     {
+                     default:
+                 Instances.Insert(Instances_Array_index, hit_instance_id);
+                         break;
+                     }
+                 //rotate the object with every click
+                 temp = GameObject.Find(hit_instance_id);
+                 temp.transform.Rotate(0, 4, 3);
 
 
-                /*if (Instances.Contains(hit_instance_id))  
-                {
-                    Debug.Log("Object hit was : "+hit_instance_id);
-                    temp = GameObject.Find(hit_instance_id.ToString());
-                    temp.transform.Rotate(0, 4, 3);
-                }*/
+                 /*if (Instances.Contains(hit_instance_id))  
+                 {
+                     Debug.Log("Object hit was : "+hit_instance_id);
+                     temp = GameObject.Find(hit_instance_id.ToString());
+                     temp.transform.Rotate(0, 4, 3);
+                 }*/
+
+    
             }
             else
             {
@@ -106,8 +136,4 @@ public class SelectObject : InstantiationObject
                 //Button_move.SetActive(false);
             }
                 
-
-            
-        }
-    }
-}
+#endif
