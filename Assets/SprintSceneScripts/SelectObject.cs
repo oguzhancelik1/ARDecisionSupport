@@ -10,12 +10,14 @@ public class SelectObject : InstantiationObject
 {
     // public GameObject Button_move;
     public int counter;
-    private int id_to_move;
+    
     int layerMask = 1 << 9;
     GameObject temporary;
     public int countStep = 0;
     public int Instances_Array_index = 0;
-    public static string hit_instance_id;
+    public static string hit_instance_name;
+    public int hit_instance_id;
+    public GameObject currentObject;
 
     void Start()
     {
@@ -23,35 +25,87 @@ public class SelectObject : InstantiationObject
 
     }
 
-    public void GetObjectToMove()
+    //move the last selected object +x direction with the click on button Move_Object_on_X_Positive
+    public void Move_Object_on_X_Positive()
     {
-        /* int id_to_move = 0;
-         if (!Int32.TryParse(hit_instance_id, out id_to_move))
-         {
-             id_to_move = -1;
-         }
-         return id_to_move;*/
-
-
+        //get the last touched object
+        currentObject = GameObject.Find(hit_instance_name);
+        //change the location on +x
+        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x + 0.1f, currentObject.transform.localPosition.y, currentObject.transform.localPosition.z);
+        //save the new x location
+        PlayerPrefs.SetFloat("TransformPosX", currentObject.transform.localPosition.x);
+        Debug.Log("New position data stored.");
     }
+    //move the last selected object -x direction with the click on button Move_Object_on_X_Negative
+    public void Move_Object_on_X_Negative()
+    {
+        //get the last touched object
+        currentObject = GameObject.Find(hit_instance_name);
+        //change the location on -x
+        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x - 0.1f, currentObject.transform.localPosition.y, currentObject.transform.localPosition.z);
+        //save the new x location
+        PlayerPrefs.SetFloat("TransformPosX", currentObject.transform.localPosition.x);
+        Debug.Log("New position data stored.");
+    }
+    //move the last selected object +y direction with the click on button Move_Object_on_Y_Positive
+    public void Move_Object_on_Y_Positive()
+    {
+        //get the last touched object
+        currentObject = GameObject.Find(hit_instance_name);
+        //change the location on +y
+        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x, currentObject.transform.localPosition.y + 0.1f, currentObject.transform.localPosition.z);
+        //save the new y location
+        PlayerPrefs.SetFloat("TransformPosY", currentObject.transform.localPosition.y);
+        Debug.Log("New position data stored.");
+    }
+    //move the last selected object -y direction with the click on button Move_Object_on_Y_Negative
+    public void Move_Object_on_Y_Negative()
+    {
+        //get the last touched object
+        currentObject = GameObject.Find(hit_instance_name);
+        //change the location on -y
+        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x , currentObject.transform.localPosition.y - 0.1f, currentObject.transform.localPosition.z);
+        //save the new y location
+        PlayerPrefs.SetFloat("TransformPosY", currentObject.transform.localPosition.y);
+        Debug.Log("New position data stored.");
+    }
+    //move the last selected object +z direction with the click on button Move_Object_on_Z_Positive
+    public void Move_Object_on_Z_Positive()
+    {
+        //get the last touched object
+        currentObject = GameObject.Find(hit_instance_name);
+        //change the location on +z
+        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x, currentObject.transform.localPosition.y, currentObject.transform.localPosition.z + 0.1f);
+        //save the new z location
+        PlayerPrefs.SetFloat("TransformPosZ", currentObject.transform.localPosition.z);
+        Debug.Log("New position data stored.");
+    }
+    //move the last selected object -z direction with the click on button Move_Object_on_Z_Negative
+    public void Move_Object_on_Z_Negative()
+    {
+
+        //get the last touched object
+        currentObject = GameObject.Find(hit_instance_name);
+        //change the location on -z
+        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x, currentObject.transform.localPosition.y, currentObject.transform.localPosition.z - 0.1f);
+        //save the new z location
+        PlayerPrefs.SetFloat("TransformPosZ", currentObject.transform.localPosition.z);
+        Debug.Log("New position data stored.");
+    }
+    
+
     //set color to default for the object deselected
     public void ObjectDeselected()
     {
-
-
-
+        
     }
 
-    //change color of the object selected
+    //return the last touched object
     public void ObjectSelected()
     {
-        temporary = GameObject.Find(hit_instance_id);
-        Renderer rend = temporary.GetComponentInChildren<Renderer>();
-        rend.material.shader = Shader.Find("_Color");
-        rend.material.SetColor("_Color", Color.green);
+        
     }
-
-
+    
 
     void Update()
     {
@@ -65,75 +119,11 @@ public class SelectObject : InstantiationObject
             if (Physics.Raycast(ray, out hit, layerMask))
             {
                 //get the collided objects name(its instance id)
-                hit_instance_id = hit.transform.name;
-
-                Debug.Log("hit_instance_id is : " + hit_instance_id);
-
-                //Increment the x position of the hit object by 0.1f
-                hit.transform.localPosition = new Vector3(hit.transform.localPosition.x+0.1f, hit.transform.localPosition.y, hit.transform.localPosition.z);
-
-                //Save the new position data
-                PlayerPrefs.SetFloat("TransformPosX", hit.transform.localPosition.x);
-                PlayerPrefs.SetFloat("TransformPosY", hit.transform.localPosition.y);
-                PlayerPrefs.SetFloat("TransformPosZ", hit.transform.localPosition.z);
-                Debug.Log("New position data stored.");
+                hit_instance_name = hit.transform.name;
+               
             }
         }
     }
 }
 
 
-#if false
- //check if the ray collides with the objects 
-                if (Physics.Raycast(ray, out hitInfo, layerMask))
-            {
-                //get the collided objects name(its instance id)
-                hit_instance_id = hitInfo.transform.name;
-
-                Debug.Log("hit_instance_id is : " + hit_instance_id);
-
-                //rotate the object with every click
-
-                GameObject TargetGO = GameObject.Find(hit_instance_id);
-                TargetGO.transform.localPosition = new Vector3(TargetGO.transform.localPosition.x + 0.1f, TargetGO.transform.localPosition.y, TargetGO.transform.localPosition.z);
-                
-
-                /*ObjectSelected();
-                Button_move.SetActive(true);
-                GetObjectToMove();*/
-
-
-
-                /*int num = InstantiationObject.GetCount(Instances);
-                for (counter = 0; counter < num; counter++)
-                {
-                    Debug.Log("elements in Instances are : " + Instances[counter]);
-                }*/
-
-                /* switch(countStep)
-                     {
-                     default:
-                 Instances.Insert(Instances_Array_index, hit_instance_id);
-                         break;
-                     }
-                 //rotate the object with every click
-                 temp = GameObject.Find(hit_instance_id);
-                 temp.transform.Rotate(0, 4, 3);
-
-
-                 /*if (Instances.Contains(hit_instance_id))  
-                 {
-                     Debug.Log("Object hit was : "+hit_instance_id);
-                     temp = GameObject.Find(hit_instance_id.ToString());
-                     temp.transform.Rotate(0, 4, 3);
-                 }*/
-
-    
-            }
-            else
-            {
-                //No object was selected, disable Button_move
-                //Button_move.SetActive(false);
-            }
-                
-#endif

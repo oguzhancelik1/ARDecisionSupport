@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System;
-//using System.Numerics; ****cant use it because it causes problem when it is used with UnityEngine
+
 
 public class InstantiationObject : MonoBehaviour
 {
@@ -35,11 +35,15 @@ public class InstantiationObject : MonoBehaviour
             switch (step)
             {
                 default:
+                    //instantiate prefab instance 
                     prefabInstance = Instantiate(ExistingPrefab);
+                    //set the image target as parent of prefab instance
                     prefabInstance.transform.parent = ImageTarget.transform;
+                    //make every new instance further from the previously created prefab instance
                     prefabInstance.transform.localPosition = new Vector3(0f + PositionShift, 0f, 0f);
                     prefabInstance.transform.localRotation = new Quaternion(0, 0, 0, 0);
                     PositionShift = PositionShift + 1f;
+                    //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
                     prefabInstance.layer = 9;
                     /*
                     //name the instance with its id number 
@@ -51,52 +55,24 @@ public class InstantiationObject : MonoBehaviour
 
                     //Saving the transform local position
                     SavedTransformPosition = (GameObject.Find(instance_id_String)).transform.localPosition;
-
+                    */
                     //Save the new ID
 
                     //Save the new transform position
+                    /*
                     PlayerPrefs.SetFloat("TransformPosX", SavedTransformPosition.x);
                     PlayerPrefs.SetFloat("TransformPosY", SavedTransformPosition.y);
                     PlayerPrefs.SetFloat("TransformPosZ", SavedTransformPosition.z);
                     */
                     break;
             }
-            //Instances_Array_index++;
+            
             x = Instances.Count;
         }
         catch (Exception ex) { }
-       // saveStuff.FindGameObject(instance_id_String);// why do i need an instance of a class when gamecontroller doesnt need it to implement savedata class functions?
-    }
-    public string InstanceIdGetter()
-    {
-        string ad = instance_id_String;
-
-        return ad;
-    }
-    public Vector3 SetPosition()
-    {
-        Vector3 temposition;
-        temposition = SavedTransformPosition;
-        
-
-        return temposition;
-    }
-    public Transform SetTransform()
-    {
-        Transform tr = ImageTarget.transform;
-        return tr;
-        
-    }
-    /*
-    public static int GetCount(IList arrayList )
-    {
-        int num = arrayList.Count;
-        return num;
-    }*/
-    
-    
        
+    }
+  
    
-
 }
 
