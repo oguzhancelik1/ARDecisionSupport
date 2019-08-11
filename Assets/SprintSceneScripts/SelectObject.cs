@@ -8,21 +8,26 @@ using System;
 
 public class SelectObject : InstantiationObject
 {
-    // public GameObject Button_move;
+   
     public int counter;
     
     int layerMask = 1 << 9;
     GameObject temporary;
     public int countStep = 0;
-    public int Instances_Array_index = 0;
+    
     public static string hit_instance_name;
     public int hit_instance_id;
+
+    //holds whichever object is added from the generative objects
     public GameObject currentObject;
+    
 
     void Start()
     {
-
-
+        //Not sure declaration of the type strings should be done here!!!
+        PlayerPrefs.SetString("cube", string_holds_cube_objects);
+        PlayerPrefs.SetString("sphere", string_holds_sphere_objects);
+        PlayerPrefs.SetString("arrow", string_holds_arrow_objects);
     }
 
     //move the last selected object +x direction with the click on button Move_Object_on_X_Positive
@@ -118,9 +123,10 @@ public class SelectObject : InstantiationObject
             //check if the ray collides with the objects 
             if (Physics.Raycast(ray, out hit, layerMask))
             {
-                //get the collided objects name(its instance id)
+                //get the collided objects name
                 hit_instance_name = hit.transform.name;
-               
+                Debug.Log("The object that was hit is : "+ hit_instance_name);
+                
             }
         }
     }
