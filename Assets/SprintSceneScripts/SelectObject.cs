@@ -10,8 +10,8 @@ public class SelectObject : InstantiationObject
 {
    
     public int counter;
-    
-    int layerMask = 1 << 9;
+    //Layer that holds the created objects which will collide with the raycast
+    int layerMask = 1 << 9 |  1<<5;
     GameObject temporary;
     public int countStep = 0;
     
@@ -25,9 +25,9 @@ public class SelectObject : InstantiationObject
     void Start()
     {
         //Not sure declaration of the type strings should be done here!!!
-        PlayerPrefs.SetString("cube", string_holds_cube_objects);
-        PlayerPrefs.SetString("sphere", string_holds_sphere_objects);
-        PlayerPrefs.SetString("arrow", string_holds_arrow_objects);
+        //PlayerPrefs.SetString("cube", string_holds_cube_objects);
+        //PlayerPrefs.SetString("sphere", string_holds_sphere_objects);
+        //PlayerPrefs.SetString("arrow", string_holds_arrow_objects);
     }
 
     //move the last selected object +x direction with the click on button Move_Object_on_X_Positive
@@ -88,13 +88,29 @@ public class SelectObject : InstantiationObject
     //move the last selected object -z direction with the click on button Move_Object_on_Z_Negative
     public void Move_Object_on_Z_Negative()
     {
-
+        string s;
+        
         //get the last touched object
         currentObject = GameObject.Find(hit_instance_name);
+
+        //get the latest version of the string value that holds the information on the object
+        string_that_holds_sphere_info = PlayerPrefs.GetString("Sphere");
+
+        //Convert the string back to dictionary for manipulation
+        sphereObjectsDictionary = ConvertStringToDict(string_that_holds_sphere_info);
+
         //change the location on -z
-        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x, currentObject.transform.localPosition.y, currentObject.transform.localPosition.z - 0.1f);
+        currentObject.transform.localPosition = new Vector3(currentObject.transform.localPosition.x, currentObject.transform.localPosition.y, currentObject.transform.localPosition.z - 1);
+
+        //Update the dictionary
+        sphereObjectsDictionary[hit_instance_name + "PosZ"] = currentObject.transform.localPosition.z;
+        //FillSphereDictionary(sphereObjectsDictionary, hit_instance_name+"PosZ", currentObject.transform.localPosition.z);
+
+        //Convert the dictionary back to the string to set the playerprefs
+        string_that_holds_sphere_info = ConvertDictToString(sphereObjectsDictionary, string_that_holds_sphere_info);
+        Debug.Log(string_that_holds_sphere_info);
         //save the new z location
-        PlayerPrefs.SetFloat("TransformPosZ", currentObject.transform.localPosition.z);
+        PlayerPrefs.SetString("Sphere", string_that_holds_sphere_info);
         Debug.Log("New position data stored.");
     }
     

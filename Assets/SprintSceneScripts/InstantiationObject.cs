@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System;
+using System.Text;
+using System.IO;
 
 
 public class InstantiationObject : MonoBehaviour
@@ -30,20 +32,20 @@ public class InstantiationObject : MonoBehaviour
     public static int x;
     public string instance_id_String;
 
-    //The string that will hold the transform information of all the added cube objects
-    public string string_holds_cube_objects;
-    //The string that will hold the transform information of all the added sphere objects
-    public string string_holds_sphere_objects;
-    //The string that will hold the transform information of all the added arrow objects
-    public string string_holds_arrow_objects;
-    //Declaratıon of the generatıve objects whıch will allow user to create desired object
-    public char instance_name;
+    //Declaration of dictionary and the string that will hold the sphere object's information
+    public Dictionary<string, float> sphereObjectsDictionary = new Dictionary<string, float>();
+    public string string_that_holds_sphere_info;
+    
+    
 
     // Declaration of the generative objects
     public GameObject generativeCube;
     public GameObject generativeSphere;
     public GameObject generativeArrow;
-    
+
+
+   
+
     //Function to swipe right through to generative objects
     public void SwipeRight()
     {
@@ -95,6 +97,76 @@ public class InstantiationObject : MonoBehaviour
         }
 
 
+    }
+    public /*Dictionary<string, float>*/void FillSphereDictionary(Dictionary<string, float> dict,string key,float info)//,float posy,float posz,float rotx,float roty,float rotz,float sclx,float scly,float sclz )
+    {
+        dict.Add(key, info);
+
+        
+    }
+
+
+
+    /// <summary>
+    /// ConvertDictToString converts a given string, float dictionary to a string using the GetLine method.
+ 
+    public string ConvertDictToString(Dictionary<string, float> dict,string objectTypeString)
+    {
+        // Convert dictionary to string and save
+        objectTypeString = GetLine(dict);
+        //File.WriteAllText("dict.txt", s);
+        // Get dictionary from that file
+        //Dictionary<string, int> d = GetDict("dict.txt");
+        return objectTypeString;
+    }
+
+    string GetLine(Dictionary<string, float> d)
+    {
+        // Build up each line one-by-one and then trim the end
+        StringBuilder builder = new StringBuilder();
+        foreach (KeyValuePair<string, float> pair in d)
+        {
+            builder.Append(pair.Key).Append(":").Append(pair.Value).Append(',');
+        }
+        string result = builder.ToString();
+        // Remove the final delimiter
+        result = result.TrimEnd(',');
+        return result;
+    }
+    /// <summary>
+  
+
+
+
+
+
+    //Takes a string returns a dictionary of type <string, float>
+    public Dictionary<string, float> ConvertStringToDict(string f)
+    {
+        Dictionary<string, float> d = new Dictionary<string, float>();
+        string s = f; //= File.ReadAllText(f);
+        // Divide all pairs (remove empty strings)
+        string[] tokens = s.Split(new char[] { ':', ',' });//, StringSplitOptions.RemoveEmptyEntries);
+
+        // Walk through each item
+        for (int i = 0; i < tokens.Length; i += 2)
+        {
+            string name = tokens[i];
+            string freq = tokens[i + 1];
+
+            // Parse the int (this can throw)
+            int count = int.Parse(freq);
+            // Fill the value in the sorted dictionary
+            if (d.ContainsKey(name))
+            {
+                d[name] += count;
+            }
+            else
+            {
+                d.Add(name, count);
+            }
+        }
+        return d;
     }
 
     //Function to create object on click event
@@ -158,9 +230,36 @@ public class InstantiationObject : MonoBehaviour
                         PositionShift = PositionShift + 1f;
                         //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
                         prefabInstance.layer = 9;
-                        
                         //name the instance with its id number 
                         prefabInstance.name = prefabInstance.GetInstanceID().ToString();
+
+                        FillSphereDictionary(sphereObjectsDictionary, prefabInstance.name + "PosX", prefabInstance.transform.localPosition.x);
+                        FillSphereDictionary(sphereObjectsDictionary, prefabInstance.name + "PosY", prefabInstance.transform.localPosition.y);
+                        FillSphereDictionary(sphereObjectsDictionary, prefabInstance.name + "PosZ", prefabInstance.transform.localPosition.z);
+                        string_that_holds_sphere_info = ConvertDictToString(sphereObjectsDictionary, string_that_holds_sphere_info);
+                        Debug.Log(string_that_holds_sphere_info);
+                        PlayerPrefs.SetString("Sphere", string_that_holds_sphere_info);
+
+
+
+                        /*
+                        
+                        //Add the local position information into the sphereObject dictionary
+                        sphereObject.Add(prefabInstance.name + "PosX", prefabInstance.transform.localPosition.x);
+                        sphereObject.Add(prefabInstance.name + "PosY", prefabInstance.transform.localPosition.y);
+                        sphereObject.Add(prefabInstance.name + "PosZ", prefabInstance.transform.localPosition.z);
+                        //Add the local rotaion information into the sphereObject dictionary
+                        sphereObject.Add(prefabInstance.name + "RotX", prefabInstance.transform.localRotation.x);
+                        sphereObject.Add(prefabInstance.name + "RotY", prefabInstance.transform.localRotation.y);
+                        sphereObject.Add(prefabInstance.name + "RotZ", prefabInstance.transform.localRotation.z);
+                        //Add the local scale information into the sphereObject dictionary
+                        sphereObject.Add(prefabInstance.name + "SclX", prefabInstance.transform.localScale.x);
+                        sphereObject.Add(prefabInstance.name + "SclY", prefabInstance.transform.localScale.y);
+                        sphereObject.Add(prefabInstance.name + "SclZ", prefabInstance.transform.localScale.z);
+                        */
+
+
+
 
                         //get the id of each prefab instance
                         //instance_id = prefabInstance.GetInstanceID();
@@ -168,7 +267,7 @@ public class InstantiationObject : MonoBehaviour
 
                         //Saving the transform local position
                         //SavedTransformPosition = (GameObject.Find(instance_id_String)).transform.localPosition;
-                        
+
                         //Save the new ID
 
                         //Save the new transform position
