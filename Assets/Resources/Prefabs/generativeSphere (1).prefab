@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8211091713580925855}
   - component: {fileID: 8211091713580925852}
   - component: {fileID: 8211091713580925853}
+  - component: {fileID: 290138120347922960}
   m_Layer: 0
   m_Name: generativeSphere (1)
   m_TagString: Untagged
@@ -91,3 +92,16 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &290138120347922960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8211091713580925843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daac174528851bd49b26f81d908211a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 0

@@ -92,7 +92,7 @@ public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventH
             // Enable canvas':
             foreach (var component in canvasComponents)
                 component.enabled = true;
-
+            #region previous version
             //Restore Saved position data
             //If the restored data are all zeros, ignore
 
@@ -125,72 +125,44 @@ public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventH
                 
                 
             }*/
-
-            string str = PlayerPrefs.GetString("Sphere");
-            if (string.IsNullOrEmpty(str))
+            #endregion
+            
+            if (PlayerPrefs.HasKey("DistinctiveNumber"))
             {
-                Debug.Log("There is no sphere object created");
-
-            }
-            else
-            {
-                Dictionary<string, float> dict = ConvertStringToDict(str);
-
-                //Creation of instance of an array which will help construct the instances by holding the information of each instance's transform data
-                IList myArryList1 = new ArrayList();
-
-                //float[] f= new float[1000];
-
-                int i = 0;
-                //fill in all the values into an array to construct all the instances with correct data
-                foreach (KeyValuePair<string, float> entry in dict)
+                int dinstinctiveNumber = PlayerPrefs.GetInt("DistinctiveNumber");
+                GameObject gameObject;
+                for (int counter = 1; counter <= dinstinctiveNumber; counter++)
                 {
+                    Dictionary<string, float> dict = new Dictionary<string, float>();
+                    string counterString = counter.ToString();
+                    string stringHolder = PlayerPrefs.GetString(counterString);
+                    dict = ConvertStringToDict(stringHolder);
+                    //instantiate prefab instance 
+                    gameObject = Instantiate(ExistingPrefabSphere);
+                    //set the image target as parent of prefab instance
+                    gameObject.transform.parent = ImageTarget.transform;
+                    //Set the local location values of the instance using the information being held in the dictionaries
+                    gameObject.transform.localPosition = new Vector3(dict["PosX"] , dict["PosY"], dict["PosZ"]);
+                    //Set its rotation to default
+                    gameObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
 
-                    myArryList1.Add(entry.Value);
+
+                    DistinctiveSphereData distinctiveSphereData_ = gameObject.GetComponent<DistinctiveSphereData>();
+                    distinctiveSphereData_.id = counter;
+                    //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
+                    gameObject.layer = 9;
+                    //Assign instance tag the distinctive number
                     
                     
                 }
-                //Counter and iter are used so that the consecutive x,y,z values are extracted for all objects, to instantiate the objects.
-                //Since objects have 3 data (x,y,z), iteration should continue from where it ended. The array values are extracted 3 by 3
-                int arrayLength = myArryList1.Count;
-                int counter = 0;
-                do
-                {
-                    for (int iter = counter; iter <= counter ; iter++) 
-                    {
-                        float x = (float)myArryList1[iter];
-                        float y = (float)myArryList1[iter+1];
-                        float z = (float)myArryList1[iter+2];
-                        //Instantiate a new GameObject
-                        GameObject prefabInstance;
-                        prefabInstance = Instantiate(ExistingPrefabSphere);
-
-                        //Set the ImageTarget as a parent
-                        prefabInstance.transform.parent = ImageTarget.transform;
-
-                        prefabInstance.transform.localPosition = new Vector3(x,y,z);
-                        //Set the rotation to Zeros
-                        prefabInstance.transform.localRotation = new Quaternion(0, 0, 0, 0);
-                        //Set the layer for raycast masking
-                        prefabInstance.layer = 9;
-                        prefabInstance.name = prefabInstance.GetInstanceID().ToString();
-
-                        FillSphereDictionary(sphereObjectsDictionary, prefabInstance.name + "PosX", prefabInstance.transform.localPosition.x);
-                        FillSphereDictionary(sphereObjectsDictionary, prefabInstance.name + "PosY", prefabInstance.transform.localPosition.y);
-                        FillSphereDictionary(sphereObjectsDictionary, prefabInstance.name + "PosZ", prefabInstance.transform.localPosition.z);
-                        
-
-                    }
-                    //increment the counter by 3, to move on to the next object if there are any
-                    counter = counter + 3;
-                } while (counter+3<arrayLength);
-
-                string_that_holds_sphere_info = ConvertDictToString(sphereObjectsDictionary, string_that_holds_sphere_info);
-                Debug.Log(string_that_holds_sphere_info);
-                PlayerPrefs.SetString("Sphere", string_that_holds_sphere_info);
+            }
+            else
+            {
+                Debug.Log("There is no object created click create object button to create an object");
 
             }
-            
+
+
         }
     }
 

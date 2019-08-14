@@ -105,34 +105,39 @@ public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandle
             // Enable canvas':
             foreach (var component in canvasComponents)
                 component.enabled = true;
-
+            #region previous version
             //Restore Saved position data
             //If the restored data are all zeros, ignore
-            if(    PlayerPrefs.GetFloat("TransformPosX") == 0 
-                && PlayerPrefs.GetFloat("TransformPosY") == 0 
-                && PlayerPrefs.GetFloat("TransformPosZ") == 0)
-            {
-                Debug.Log("All restored data are zeros.");
-            }else //There are valid position data
-            {
-                Debug.Log("There are valid data restored.");
+            //if (playerprefs.getfloat("transformposx") == 0
+            //    && playerprefs.getfloat("transformposy") == 0
+            //    && playerprefs.getfloat("transformposz") == 0)
+            //{
+            //    debug.log("all restored data are zeros.");
+            //}
+            //else //there are valid position data
+            //{
+            //    debug.log("there are valid data restored.");
 
-                //Instantiate a new GameObject
-                GameObject prefabInstance;
-                prefabInstance = Instantiate(ExistingPrefab);
+            //    //instantiate a new gameobject
+            //    gameobject prefabinstance;
+            //    prefabinstance = instantiate(existingprefab);
 
-                //Set the ImageTarget as a parent
-                prefabInstance.transform.parent = ImageTarget.transform;
+            //    //set the imagetarget as a parent
+            //    prefabinstance.transform.parent = imagetarget.transform;
 
-                //Set the local position of the newly created gameobject into the ones in PlayerPrefs
-                prefabInstance.transform.localPosition = new Vector3(PlayerPrefs.GetFloat("TransformPosX"), PlayerPrefs.GetFloat("TransformPosY"), PlayerPrefs.GetFloat("TransformPosZ"));
-               // string str = PlayerPrefs.GetString("Sphere");
-                
-                //Set the rotation to Zeros
-                prefabInstance.transform.localRotation = new Quaternion(0, 0, 0, 0);
-                //Set the layer for raycast masking
-                prefabInstance.layer = 9;
-            }
+            //    //set the local position of the newly created gameobject into the ones in playerprefs
+            //    prefabinstance.transform.localposition = new vector3(playerprefs.getfloat("transformposx"), playerprefs.getfloat("transformposy"), playerprefs.getfloat("transformposz"));
+            //    // string str = playerprefs.getstring("sphere");
+
+            //    //set the rotation to zeros
+            //    prefabinstance.transform.localrotation = new quaternion(0, 0, 0, 0);
+            //    //set the layer for raycast masking
+            //    prefabinstance.layer = 9;
+            //}
+            #endregion
+            
+
+
         }
     }
 
