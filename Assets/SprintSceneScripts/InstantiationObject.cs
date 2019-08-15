@@ -32,8 +32,7 @@ public class InstantiationObject : MonoBehaviour
     public static int x;
     public string instance_id_String;
 
-    //Declaration of dictionary and the string that will hold the sphere object's information
-    //public Dictionary<string, float> sphereObjectsDictionary = new Dictionary<string, float>();
+ 
     public string string_that_holds_sphere_info;
     
     
@@ -45,7 +44,10 @@ public class InstantiationObject : MonoBehaviour
 
     //To be assigned to each object created
     public static int distinctiveNumber = 1;
-   
+    //By default the application will be in step 1
+
+    //Position shift for new objects
+    private float instantiationPositionShift = 0;
 
     //Function to swipe right through to generative objects
     public void SwipeRight()
@@ -139,10 +141,6 @@ public class InstantiationObject : MonoBehaviour
     /// <summary>
   
 
-
-
-
-
     //Takes a string returns a dictionary of type <string, float>
     public Dictionary<string, float> ConvertStringToDict(string f)
     {
@@ -175,14 +173,16 @@ public class InstantiationObject : MonoBehaviour
     //Function to create object on click event
     public void CreateNewObjectButton()
     {
+        float currentStepNumber;
         DistinctiveSphereData distinctiveSphereData = new DistinctiveSphereData();
-        
+        currentStepNumber = PlayerPrefs.GetFloat("Step");
         try
         {
             // Make the function callable every time the button is pressed without a limitation on how many times you can press the button
             step++;
             switch (step)
             {
+
                 default:
                     if(generativeCube.activeSelf)
                     {
@@ -225,6 +225,8 @@ public class InstantiationObject : MonoBehaviour
                         //check previously incremented distinctive numbers to see what is the last distinctive number in the key if any exists
                         if (PlayerPrefs.HasKey("DistinctiveNumber"))
                         {
+                            
+                           
                             //Get the last distinctive number(it also represents the number of spehere objects created prior createing new sphere object)
                             distinctiveNumber = PlayerPrefs.GetInt("DistinctiveNumber");
                             //continue with the next distinct number when the application is launched multiple times
@@ -236,15 +238,16 @@ public class InstantiationObject : MonoBehaviour
                             //make every new instance further from the previously created prefab instance
                             prefabInstance.transform.localPosition = new Vector3(0f + PositionShift, 0f, 0f);
                             prefabInstance.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                            PositionShift = PositionShift + instantiationPositionShift;
+                            //Assign the objects distinctive id using distinctive number 
                             distinctiveSphereData = prefabInstance.GetComponent<DistinctiveSphereData>();
                             distinctiveSphereData.id = distinctiveNumber;
 
-                            PositionShift = PositionShift + 1f;
+                            
                             //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
                             prefabInstance.layer = 9;
 
-                            //Assign instance tag the distinctive number
-                            //prefabInstance.tag = distinctiveNumber.ToString();
+                      
                             //Set the key for the SetString function by stringifying the distinctive number
                             string distinctDictKeyName = distinctiveNumber.ToString();
                             //Create a dicctionary object to fill in the data
@@ -253,6 +256,8 @@ public class InstantiationObject : MonoBehaviour
                             FillDictionary(dict, "PosX", prefabInstance.transform.localPosition.x);
                             FillDictionary(dict, "PosY", prefabInstance.transform.localPosition.y);
                             FillDictionary(dict, "PosZ", prefabInstance.transform.localPosition.z);
+                            //Fill the step value of the object with the step it is created
+                            FillDictionary(dict,"StepValue", currentStepNumber);
                             //Convert dictionary to string then assign to a variable
                             string_that_holds_sphere_info = ConvertDictToString(dict, string_that_holds_sphere_info);
                             Debug.Log(string_that_holds_sphere_info);
@@ -277,9 +282,11 @@ public class InstantiationObject : MonoBehaviour
                             //make every new instance further from the previously created prefab instance
                             prefabInstance.transform.localPosition = new Vector3(0f + PositionShift, 0f, 0f);
                             prefabInstance.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                            PositionShift = PositionShift + 1f;
+                            //Assign the objects distinctive id using distinctive number
                             distinctiveSphereData = prefabInstance.GetComponent<DistinctiveSphereData>();
                             distinctiveSphereData.id = distinctiveNumber;
-                            PositionShift = PositionShift + 1f;
+                            
                             //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
                             prefabInstance.layer = 9;
 
@@ -293,6 +300,8 @@ public class InstantiationObject : MonoBehaviour
                             FillDictionary(dict, "PosX", prefabInstance.transform.localPosition.x);
                             FillDictionary(dict, "PosY", prefabInstance.transform.localPosition.y);
                             FillDictionary(dict, "PosZ", prefabInstance.transform.localPosition.z);
+                            //Fill the step value of the object with the step it is created
+                            FillDictionary(dict, "StepValue", currentStepNumber);
                             //Convert dictionary to string then assign to a variable
                             string_that_holds_sphere_info = ConvertDictToString(dict, string_that_holds_sphere_info);
                             Debug.Log(string_that_holds_sphere_info);
@@ -309,45 +318,6 @@ public class InstantiationObject : MonoBehaviour
                             
                         }
                         
-
-                       
-
-
-                        /*
-                        
-                        //Add the local position information into the sphereObject dictionary
-                        sphereObject.Add(prefabInstance.name + "PosX", prefabInstance.transform.localPosition.x);
-                        sphereObject.Add(prefabInstance.name + "PosY", prefabInstance.transform.localPosition.y);
-                        sphereObject.Add(prefabInstance.name + "PosZ", prefabInstance.transform.localPosition.z);
-                        //Add the local rotaion information into the sphereObject dictionary
-                        sphereObject.Add(prefabInstance.name + "RotX", prefabInstance.transform.localRotation.x);
-                        sphereObject.Add(prefabInstance.name + "RotY", prefabInstance.transform.localRotation.y);
-                        sphereObject.Add(prefabInstance.name + "RotZ", prefabInstance.transform.localRotation.z);
-                        //Add the local scale information into the sphereObject dictionary
-                        sphereObject.Add(prefabInstance.name + "SclX", prefabInstance.transform.localScale.x);
-                        sphereObject.Add(prefabInstance.name + "SclY", prefabInstance.transform.localScale.y);
-                        sphereObject.Add(prefabInstance.name + "SclZ", prefabInstance.transform.localScale.z);
-                        */
-
-
-
-
-                        //get the id of each prefab instance
-                        //instance_id = prefabInstance.GetInstanceID();
-                        //instance_id_String = instance_id.ToString();
-
-                        //Saving the transform local position
-                        //SavedTransformPosition = (GameObject.Find(instance_id_String)).transform.localPosition;
-
-                        //Save the new ID
-
-                        //Save the new transform position
-                        /*
-                        PlayerPrefs.SetFloat("TransformPosX", SavedTransformPosition.x);
-                        PlayerPrefs.SetFloat("TransformPosY", SavedTransformPosition.y);
-                        PlayerPrefs.SetFloat("TransformPosZ", SavedTransformPosition.z);
-                        */
-
                     }
                     else if (generativeArrow.activeSelf)
                     {

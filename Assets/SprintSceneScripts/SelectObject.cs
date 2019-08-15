@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-
+using UnityEngine.UI;
 
 public class SelectObject : InstantiationObject
 {
@@ -18,17 +18,14 @@ public class SelectObject : InstantiationObject
     public static string hit_instance_name;
     public int hit_instance_id;
     public string tag;
-
+    public Text StepUIText;
     //holds whichever object is added from the generative objects
     public GameObject currentObject;
 
     
-    void Start()
-    {
-      
-    }
+    
 
-    #region moving on x,y,z+
+    #region moving on x,y,z
     //move the last selected object +x direction with the click on button Move_Object_on_X_Positive
     public void Move_Object_on_X_Positive()
     {
@@ -174,7 +171,7 @@ public class SelectObject : InstantiationObject
         PlayerPrefs.SetString(tag, e);
         Debug.Log("New position data stored.");
     }
-    #endregion
+   
 
 
     //move the last selected object -z direction with the click on button Move_Object_on_Z_Negative
@@ -206,6 +203,8 @@ public class SelectObject : InstantiationObject
         PlayerPrefs.SetString(tag, f);
         Debug.Log("New position data stored.");
     }
+    #endregion
+
     #region resetplayerprefs function
     public void ResetPlayerPrefs()
     {
@@ -244,15 +243,164 @@ public class SelectObject : InstantiationObject
         //    Debug.Log("2 doesnt exists");
         //}
 
+        //if (PlayerPrefs.HasKey("3"))
+        //{
+        //    PlayerPrefs.DeleteKey("3");
+        //    Debug.Log("3 is deleted");
+        //}
+        //else
+        //{
+        //    Debug.Log("3 doesnt exists");
+        //}
 
+        //if (PlayerPrefs.HasKey("4"))
+        //{
+        //    PlayerPrefs.DeleteKey("4");
+        //    Debug.Log("4 is deleted");
+        //}
+        //else
+        //{
+        //    Debug.Log("4 doesnt exists");
+        //}
 
-        //distinctiveNumber = 1;
+        //if (PlayerPrefs.HasKey("5"))
+        //{
+        //    PlayerPrefs.DeleteKey("5");
+        //    Debug.Log("5 is deleted");
+        //}
+        //else
+        //{
+        //    Debug.Log("5 doesnt exists");
+        //}
+
+        //float stepChecker = PlayerPrefs.GetFloat("Step");
+
         //Debug.Log("dist num is : " + distinctiveNumber);
+
+        //Debug.Log("We are in step number : " + stepChecker);
 
 
     }
     #endregion
 
+
+    public void OnClickNext()
+    {   //restore distinctive number and the current step
+        int numberofObjects = PlayerPrefs.GetInt("DistinctiveNumber");
+        float currentStep = PlayerPrefs.GetFloat("Step");
+        //Increment the current step 
+        currentStep++;
+        //Update the step text
+        StepUIText.text = "Step " + currentStep.ToString();
+        //
+        PlayerPrefs.SetFloat("Step", currentStep);
+        //variable to hold string version of the counter in the for loop
+        string counterString;
+        //variable to hold the restored object string data
+        string keyStringHolder;
+        //Variables to hold the gameobject's renderer and collider components which will be enabled or disabled depending on the current step value
+        Collider collider;
+        Renderer renderer;
+        //Dictionary variable is going to be used to compare objects Step value(the step it was created) to the current step value
+        Dictionary<string, float> dict = new Dictionary<string, float>();
+        //Gameobject variable to access the gameobjects
+        GameObject go;
+        
+        //for loop will iterate for all objectsstarting from the first until it finishes with the last object created.
+        for(int counter=1; counter<=numberofObjects; counter++)
+        {   
+            //Convert counter to string
+            counterString = counter.ToString();
+            //Get the corresponding objects data
+            keyStringHolder = PlayerPrefs.GetString(counterString);
+            //Convert the data to dictionary type to access its step value
+            dict = ConvertStringToDict(keyStringHolder);
+           
+            //Compare current step and the object's step value
+            if (dict["StepValue"]==currentStep)
+            {
+                //Enable renderer and collider components of the object
+                go = GameObject.Find(counterString);
+                renderer = go.GetComponent<MeshRenderer>();
+                collider = go.GetComponent<Collider>();
+                renderer.enabled = true;
+                collider.enabled = true;
+            }
+            else
+            {
+                //Disable renderer and collider components of the object
+                go = GameObject.Find(counterString);
+                renderer = go.GetComponent<MeshRenderer>();
+                collider = go.GetComponent<Collider>();
+                renderer.enabled = false;
+                collider.enabled = false;
+            }
+        }
+       
+    }
+    public void OnClickPrevious()
+    {
+        //restore distinctive number and the current step
+        int numberofObjects = PlayerPrefs.GetInt("DistinctiveNumber");
+        float currentStep = PlayerPrefs.GetFloat("Step");
+        //Decrement the current step
+        currentStep--;
+        //Update the step text
+        StepUIText.text = "Step " + currentStep.ToString();
+        //
+        PlayerPrefs.SetFloat("Step", currentStep);
+        //variable to hold string version of the counter in the for loop
+        string counterString;
+        //variable to hold the restored object string data
+        string keyStringHolder;
+        //Variables to hold the gameobject's renderer and collider components which will be enabled or disabled depending on the current step value
+        Collider collider;
+        Renderer renderer;
+        //Dictionary variable is going to be used to compare objects Step value(the step it was created) to the current step value
+        Dictionary<string, float> dict = new Dictionary<string, float>();
+        //Gameobject variable to access the gameobjects
+        GameObject go;
+       
+
+        //for loop will iterate for all objectsstarting from the first until it finishes with the last object created.
+        for (int counter = 1; counter <= numberofObjects; counter++)
+        {
+            //Convert counter to string
+            counterString = counter.ToString();
+            //Get the corresponding objects data
+            keyStringHolder = PlayerPrefs.GetString(counterString);
+            //Convert the data to dictionary type to access its step value
+            dict = ConvertStringToDict(keyStringHolder);
+
+            //Compare current step and the object's step value
+            if (dict["StepValue"] == currentStep)
+            {
+                //Enable renderer and collider components of the object
+                go = GameObject.Find(counterString);
+                renderer = go.GetComponent<MeshRenderer>();
+                collider = go.GetComponent<Collider>();
+                renderer.enabled = true;
+                collider.enabled = true;
+            }
+            else
+            {
+                //Disable renderer and collider components of the object
+                go = GameObject.Find(counterString);
+                renderer = go.GetComponent<MeshRenderer>();
+                collider = go.GetComponent<Collider>();
+                renderer.enabled = false;
+                collider.enabled = false;
+            }
+        }
+        
+
+
+    }
+
+    void Start()
+    {
+        PlayerPrefs.SetFloat("Step", 1);
+    }
 
     void Update()
     {
@@ -277,19 +425,20 @@ public class SelectObject : InstantiationObject
 
                 //Get GameObject and log its id
                 DistinctiveSphereData distinctiveSphereData_ = HitObjectGO.GetComponent<DistinctiveSphereData>();
-                //distinctiveSphereData_.id = 1;
+                //Get the distinctive id and hold it in a string variable for later use when accessing the touched gameobject
                 tag = distinctiveSphereData_.id.ToString();
                 HitObjectGO.name = tag;
                 
-                Debug.Log("Hit GameObject ID: " + distinctiveSphereData_.id);
+                Debug.Log("Hit GameObject saved ID: " + distinctiveSphereData_.id);
+                Debug.Log("Pos X " + HitObjectGO.transform.position.x);
+                Debug.Log("Pos Y " + HitObjectGO.transform.position.y);
+                Debug.Log("Pos Z " + HitObjectGO.transform.position.z);
                 currentObjectCount = PlayerPrefs.GetInt("DistinctiveNumber");
 
                 //get the collided objects name
                 hit_instance_name = hit.transform.name;
-                Debug.Log("The object that was hit is : "+ hit_instance_name);
-                Debug.Log("The number of objects are : "+ currentObjectCount);
-                
-               
+                Debug.Log("Hit GameObject name"+ hit_instance_name);
+                Debug.Log("Total number of objects are : "+ currentObjectCount); 
             }
         }
     }

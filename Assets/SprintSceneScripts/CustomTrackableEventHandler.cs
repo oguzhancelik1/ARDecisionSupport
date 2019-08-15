@@ -77,6 +77,7 @@ public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventH
     {
         if (mTrackableBehaviour)
         {
+#if false
             var rendererComponents = mTrackableBehaviour.GetComponentsInChildren<Renderer>(true);
             var colliderComponents = mTrackableBehaviour.GetComponentsInChildren<Collider>(true);
             var canvasComponents = mTrackableBehaviour.GetComponentsInChildren<Canvas>(true);
@@ -92,7 +93,7 @@ public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventH
             // Enable canvas':
             foreach (var component in canvasComponents)
                 component.enabled = true;
-            #region previous version
+#region previous version
             //Restore Saved position data
             //If the restored data are all zeros, ignore
 
@@ -125,36 +126,101 @@ public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventH
                 
                 
             }*/
-            #endregion
-            
+#endregion
+#endif   
             if (PlayerPrefs.HasKey("DistinctiveNumber"))
             {
                 int dinstinctiveNumber = PlayerPrefs.GetInt("DistinctiveNumber");
-                GameObject gameObject;
+                GameObject MyGameObject;
                 for (int counter = 1; counter <= dinstinctiveNumber; counter++)
                 {
-                    Dictionary<string, float> dict = new Dictionary<string, float>();
-                    string counterString = counter.ToString();
-                    string stringHolder = PlayerPrefs.GetString(counterString);
-                    dict = ConvertStringToDict(stringHolder);
+                    Dictionary<string, float> dict_ = new Dictionary<string, float>();
+                    string counterString_ = counter.ToString();
+                    string stringHolder = PlayerPrefs.GetString(counterString_);
+                    dict_ = ConvertStringToDict(stringHolder);
                     //instantiate prefab instance 
-                    gameObject = Instantiate(ExistingPrefabSphere);
+                    MyGameObject = Instantiate(ExistingPrefabSphere);
+                    //Assign its name
+                    MyGameObject.name = counterString_;
                     //set the image target as parent of prefab instance
-                    gameObject.transform.parent = ImageTarget.transform;
+                    MyGameObject.transform.parent = ImageTarget.transform;
                     //Set the local location values of the instance using the information being held in the dictionaries
-                    gameObject.transform.localPosition = new Vector3(dict["PosX"] , dict["PosY"], dict["PosZ"]);
+                    MyGameObject.transform.localPosition = new Vector3(dict_["PosX"] , dict_["PosY"], dict_["PosZ"]);
                     //Set its rotation to default
-                    gameObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                    MyGameObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                    //Only render step 1
+                    //If dict_["step_no"]!= 1
+                    //Disable renderer
+                    if (dict_["StepValue"] != 1f)
+                    {
+                        //Disable renderer and collider components of the object
+                        //GameObject go = GameObject.Find(counterString_);
+                        Renderer renderer = MyGameObject.GetComponent<MeshRenderer>();
+                        Collider collider = MyGameObject.GetComponent<Collider>();
+                        renderer.enabled = false;
+                        collider.enabled = false;
+                    }
+                    
 
-
-                    DistinctiveSphereData distinctiveSphereData_ = gameObject.GetComponent<DistinctiveSphereData>();
+                    DistinctiveSphereData distinctiveSphereData_ = MyGameObject.GetComponent<DistinctiveSphereData>();
                     distinctiveSphereData_.id = counter;
                     //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
-                    gameObject.layer = 9;
-                    //Assign instance tag the distinctive number
-                    
-                    
+                    MyGameObject.layer = 9;
+
+                 
                 }
+
+#if false
+                //*******************************************************************************************************************************
+                //restore distinctive number and the current step
+                int numberofObjects = PlayerPrefs.GetInt("DistinctiveNumber");
+                float currentStep = PlayerPrefs.GetFloat("Step");
+
+                //variable to hold string version of the counter in the for loop
+                string counterString;
+                //variable to hold the restored object string data
+                string keyStringHolder;
+                //Variables to hold the gameobject's renderer and collider components which will be enabled or disabled depending on the current step value
+                Collider collider;
+                Renderer renderer;
+                //Dictionary variable is going to be used to compare objects Step value(the step it was created) to the current step value
+                Dictionary<string, float> dict = new Dictionary<string, float>();
+                //Gameobject variable to access the gameobjects
+                GameObject go;
+
+
+                //for loop will iterate for all objectsstarting from the first until it finishes with the last object created.
+                for (int counter = 1; counter <= numberofObjects; counter++)
+                {
+                    //Convert counter to string
+                    counterString = counter.ToString();
+                    //Get the corresponding objects data
+                    keyStringHolder = PlayerPrefs.GetString(counterString);
+                    //Convert the data to dictionary type to access its step value
+                    dict = ConvertStringToDict(keyStringHolder);
+
+                    //Compare current step and the object's step value
+                    if (dict["StepValue"] == currentStep)
+                    {
+                        //Enable renderer and collider components of the object
+                        go = GameObject.Find(counterString);
+                        renderer = go.GetComponent<MeshRenderer>();
+                        collider = go.GetComponent<Collider>();
+                        renderer.enabled = true;
+                        collider.enabled = true;
+                    }
+                    else
+                    {
+                        //Disable renderer and collider components of the object
+                        go = GameObject.Find(counterString);
+                        renderer = go.GetComponent<MeshRenderer>();
+                        collider = go.GetComponent<Collider>();
+                        renderer.enabled = false;
+                        collider.enabled = false;
+                    }
+                }
+
+#endif
             }
             else
             {
@@ -189,5 +255,5 @@ public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventH
         }
     }
 
-    #endregion // PROTECTED_METHODS
+#endregion // PROTECTED_METHODS
 }
