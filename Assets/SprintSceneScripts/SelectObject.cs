@@ -283,7 +283,7 @@ public class SelectObject : InstantiationObject
     }
     #endregion
 
-
+    //Function to be called when the next button is clicked to change the step
     public void OnClickNext()
     {   //restore distinctive number and the current step
         int numberofObjects = PlayerPrefs.GetInt("DistinctiveNumber");
@@ -331,6 +331,8 @@ public class SelectObject : InstantiationObject
                 //Disable renderer and collider components of the object
                 go = GameObject.Find(counterString);
                 renderer = go.GetComponent<MeshRenderer>();
+                //Before turning off the renderer set the color to default since it is not a chosen object anymore
+                renderer.material.color = new Color(1, 1, 1, 1);//newly added
                 collider = go.GetComponent<Collider>();
                 renderer.enabled = false;
                 collider.enabled = false;
@@ -338,6 +340,7 @@ public class SelectObject : InstantiationObject
         }
        
     }
+    //Function to be called when the previous button is clicked to change the step
     public void OnClickPrevious()
     {
         //restore distinctive number and the current step
@@ -387,12 +390,53 @@ public class SelectObject : InstantiationObject
                 //Disable renderer and collider components of the object
                 go = GameObject.Find(counterString);
                 renderer = go.GetComponent<MeshRenderer>();
+                //Before turning off the renderer set the color to default since it is not a chosen object anymore
+                renderer.material.color = new Color(1,1,1,1);//newly added
                 collider = go.GetComponent<Collider>();
                 renderer.enabled = false;
                 collider.enabled = false;
             }
         }
-        
+  
+
+
+    }
+    //Function to change the color of the selected object, it will also set the color of 'unchosen' objects to default
+    public void HighlightSelectedObject(int id)
+    {
+        int numberOfObjects = PlayerPrefs.GetInt("DistinctiveNumber");
+        for (int i = 1; i <= numberOfObjects; i++)
+        {
+
+            GameObject go = GameObject.Find(i.ToString());
+            Renderer renderer = go.GetComponent<Renderer>();
+            if (go.name == id.ToString() )
+            {
+                //change color here to cyan
+                renderer.material.color = new Color(0, 1, 1, 1);
+            }
+            else
+            {
+                //set the colour default for all other 'unchosen' objects
+                renderer.material.color = new Color(1, 1, 1, 1);
+               
+            }
+        }
+
+    }
+    //Function to disable all move functions for the objects when next or previous buttons are clicked.
+    //When one of the next or previous buttons are clicked value of the tag variable(just a string variable to hold the name)  
+    //should be set to something that a gameobject name can never be.
+    public void DeselectObject()
+    {
+        tag = "ImpossibleName";
+
+    }
+
+    public void DeleteObject()
+    {
+        string keyToBeDeleted;
+        PlayerPrefs.DeleteKey("");
 
 
     }
@@ -427,6 +471,10 @@ public class SelectObject : InstantiationObject
                 DistinctiveSphereData distinctiveSphereData_ = HitObjectGO.GetComponent<DistinctiveSphereData>();
                 //Get the distinctive id and hold it in a string variable for later use when accessing the touched gameobject
                 tag = distinctiveSphereData_.id.ToString();
+                //Change the color of the selected object while setting the color for all other objects to default
+                HighlightSelectedObject(distinctiveSphereData_.id);
+
+
                 HitObjectGO.name = tag;
                 
                 Debug.Log("Hit GameObject saved ID: " + distinctiveSphereData_.id);
