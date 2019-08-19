@@ -22,9 +22,10 @@ public class SelectObject : InstantiationObject
     //holds whichever object is added from the generative objects
     public GameObject currentObject;
 
-    
-    
 
+
+    //if(gameobject.find(tag))
+    //then do stuff meaning if no game object was found if block wont execute thus will not create an exception on runtime
     #region moving on x,y,z
     //move the last selected object +x direction with the click on button Move_Object_on_X_Positive
     public void Move_Object_on_X_Positive()
@@ -32,7 +33,7 @@ public class SelectObject : InstantiationObject
         //get the last touched object
         currentObject = GameObject.Find(tag);
 
-
+      
         Dictionary<string, float> dict = new Dictionary<string, float>();
 
         //get the latest version of the string value that holds the information on the object
@@ -308,35 +309,101 @@ public class SelectObject : InstantiationObject
         
         //for loop will iterate for all objectsstarting from the first until it finishes with the last object created.
         for(int counter=1; counter<=numberofObjects; counter++)
-        {   
-            //Convert counter to string
-            counterString = counter.ToString();
-            //Get the corresponding objects data
-            keyStringHolder = PlayerPrefs.GetString(counterString);
-            //Convert the data to dictionary type to access its step value
-            dict = ConvertStringToDict(keyStringHolder);
-           
-            //Compare current step and the object's step value
-            if (dict["StepValue"]==currentStep)
+        {
+            if (PlayerPrefs.HasKey(counter.ToString()))
             {
-                //Enable renderer and collider components of the object
-                go = GameObject.Find(counterString);
-                renderer = go.GetComponent<MeshRenderer>();
-                collider = go.GetComponent<Collider>();
-                renderer.enabled = true;
-                collider.enabled = true;
+              
+                //Convert counter to string
+                counterString = counter.ToString();
+                //Get the corresponding objects data
+                keyStringHolder = PlayerPrefs.GetString(counterString);
+                //Convert the data to dictionary type to access its step value
+                dict = ConvertStringToDict(keyStringHolder);
+                //Assign 1 to the arrowType variable
+                int arrowType = 1;
+                //If the object type is arrow
+                if (dict["Type"]== arrowType)
+                {
+                    //Compare current step and the object's step value
+                    if (dict["StepValue"] == currentStep)
+                    {
+                        //Find the arrow instance
+                        go = GameObject.Find(counterString);
+                        //Get the children of the arrow instance
+                        GameObject childArrowObject1 = go.transform.GetChild(0).gameObject;
+                        GameObject childArrowObject2 = go.transform.GetChild(1).gameObject;
+                        //Create references to the renderers of the children of the arrow prefab
+                        Renderer rendererChildObject1 = childArrowObject1.GetComponent<MeshRenderer>();
+                        Renderer rendererChildObject2 = childArrowObject2.GetComponent<MeshRenderer>();
+                        //Create a reference to the collider component of the arrow prefab
+                        collider = go.GetComponent<Collider>();
+                        //Enable components
+                        rendererChildObject1.enabled = true;
+                        rendererChildObject2.enabled = true;
+                        collider.enabled = true;
+                    }
+                    else
+                    {
+                        //Find the arrow instance
+                        go = GameObject.Find(counterString);
+                        //Get the children of the arrow instance
+                        GameObject childArrowObject1 = go.transform.GetChild(0).gameObject;
+                        GameObject childArrowObject2 = go.transform.GetChild(1).gameObject;
+                        //Create references to the renderers of the children of the arrow prefab
+                        Renderer rendererChildObject1 = childArrowObject1.GetComponent<MeshRenderer>();
+                        Renderer rendererChildObject2 = childArrowObject2.GetComponent<MeshRenderer>();
+                        //Before turning off the renderers of the children of the arrow prefab, set the color to default since it is not a chosen object anymore
+                        rendererChildObject1.material.color = new Color(1, 1, 1, 1);//newly added
+                        rendererChildObject2.material.color = new Color(1, 1, 1, 1);
+                        //Create a reference to the collider component of the arrow prefab
+                        collider = go.GetComponent<Collider>();
+                        //Disable components
+                        rendererChildObject1.enabled = false;
+                        rendererChildObject2.enabled = false;
+                        collider.enabled = false;
+                    }
+
+                }
+                else
+                {
+                //Compare current step and the object's step value
+                if (dict["StepValue"] == currentStep)
+                {
+                    //Enable renderer and collider components of the object
+                    go = GameObject.Find(counterString);
+                    renderer = go.GetComponent<MeshRenderer>();
+                    collider = go.GetComponent<Collider>();
+                    renderer.enabled = true;
+                    collider.enabled = true;
+                }
+                else
+                {
+                    //Disable renderer and collider components of the object
+                    go = GameObject.Find(counterString);
+                    renderer = go.GetComponent<MeshRenderer>();
+                    //Before turning off the renderer set the color to default since it is not a chosen object anymore
+                    renderer.material.color = new Color(1, 1, 1, 1);//newly added
+                    collider = go.GetComponent<Collider>();
+                    renderer.enabled = false;
+                    collider.enabled = false;
+                }
+
+
+
+                }
+              
+
             }
             else
             {
-                //Disable renderer and collider components of the object
-                go = GameObject.Find(counterString);
-                renderer = go.GetComponent<MeshRenderer>();
-                //Before turning off the renderer set the color to default since it is not a chosen object anymore
-                renderer.material.color = new Color(1, 1, 1, 1);//newly added
-                collider = go.GetComponent<Collider>();
-                renderer.enabled = false;
-                collider.enabled = false;
+
+
             }
+                
+
+            
+            
+       
         }
        
     }
@@ -368,34 +435,98 @@ public class SelectObject : InstantiationObject
         //for loop will iterate for all objectsstarting from the first until it finishes with the last object created.
         for (int counter = 1; counter <= numberofObjects; counter++)
         {
-            //Convert counter to string
-            counterString = counter.ToString();
-            //Get the corresponding objects data
-            keyStringHolder = PlayerPrefs.GetString(counterString);
-            //Convert the data to dictionary type to access its step value
-            dict = ConvertStringToDict(keyStringHolder);
-
-            //Compare current step and the object's step value
-            if (dict["StepValue"] == currentStep)
+            if (PlayerPrefs.HasKey(counter.ToString()))
             {
-                //Enable renderer and collider components of the object
-                go = GameObject.Find(counterString);
-                renderer = go.GetComponent<MeshRenderer>();
-                collider = go.GetComponent<Collider>();
-                renderer.enabled = true;
-                collider.enabled = true;
+                //Convert counter to string
+                counterString = counter.ToString();
+                //Get the corresponding objects data
+                keyStringHolder = PlayerPrefs.GetString(counterString);
+                //Convert the data to dictionary type to access its step value
+                dict = ConvertStringToDict(keyStringHolder);
+                //Assign 1 to the arrow type variable
+                int arrowType = 1;
+                if (dict["Type"]==arrowType)
+                {
+                    //Compare current step and the object's step value
+                    if (dict["StepValue"] == currentStep)
+                    {
+                        //Find the arrow instance
+                        go = GameObject.Find(counterString);
+                        //Get the children of the arrow prefab
+                        GameObject childArrowObject1 = go.transform.GetChild(0).gameObject;
+                        GameObject childArrowObject2 = go.transform.GetChild(1).gameObject;
+                        //Create references to the renderers of the children of the arrow prefab
+                        Renderer rendererChildObject1 = childArrowObject1.GetComponent<MeshRenderer>();
+                        Renderer rendererChildObject2 = childArrowObject2.GetComponent<MeshRenderer>();
+                        //Create a reference to the collider component of the arrow prefab
+                        collider = go.GetComponent<Collider>();
+                        //Enable components
+                        rendererChildObject1.enabled = true;
+                        rendererChildObject2.enabled = true;
+                        collider.enabled = true;
+                    }
+                    else
+                    {
+                        //Find the arrow instance
+                        go = GameObject.Find(counterString);
+                        //Get the children of the arrow prefab
+                        GameObject childArrowObject1 = go.transform.GetChild(0).gameObject;
+                        GameObject childArrowObject2 = go.transform.GetChild(1).gameObject;
+                        //Create references to the renderers of the children of the arrow prefab
+                        Renderer rendererChildObject1 = childArrowObject1.GetComponent<MeshRenderer>();
+                        Renderer rendererChildObject2 = childArrowObject2.GetComponent<MeshRenderer>();
+                        //Before turning off the renderers of the children of the arrow prefab, set the color to default since it is not a chosen object anymore
+                        rendererChildObject1.material.color = new Color(1, 1, 1, 1);
+                        rendererChildObject2.material.color = new Color(1, 1, 1, 1);
+                        //Create a reference to the collider component of the arrow prefab
+                        collider = go.GetComponent<Collider>();
+                        //Disable components
+                        rendererChildObject1.enabled = false;
+                        rendererChildObject2.enabled = false;
+                        collider.enabled = false;
+                    }
+
+
+                }
+                else
+                {
+                    //Compare current step and the object's step value
+                    if (dict["StepValue"] == currentStep)
+                    {
+                        //Enable renderer and collider components of the object
+                        go = GameObject.Find(counterString);
+                        renderer = go.GetComponent<MeshRenderer>();
+                        collider = go.GetComponent<Collider>();
+                        renderer.enabled = true;
+                        collider.enabled = true;
+                    }
+                    else
+                    {
+                        //Disable renderer and collider components of the object
+                        go = GameObject.Find(counterString);
+                        renderer = go.GetComponent<MeshRenderer>();
+                        //Before turning off the renderer set the color to default since it is not a chosen object anymore
+                        renderer.material.color = new Color(1, 1, 1, 1);//newly added
+                        collider = go.GetComponent<Collider>();
+                        renderer.enabled = false;
+                        collider.enabled = false;
+                    }
+
+
+
+                }
+            
+
+
             }
             else
             {
-                //Disable renderer and collider components of the object
-                go = GameObject.Find(counterString);
-                renderer = go.GetComponent<MeshRenderer>();
-                //Before turning off the renderer set the color to default since it is not a chosen object anymore
-                renderer.material.color = new Color(1,1,1,1);//newly added
-                collider = go.GetComponent<Collider>();
-                renderer.enabled = false;
-                collider.enabled = false;
+
+
             }
+              
+           
+          
         }
   
 
@@ -404,23 +535,72 @@ public class SelectObject : InstantiationObject
     //Function to change the color of the selected object, it will also set the color of 'unchosen' objects to default
     public void HighlightSelectedObject(int id)
     {
+        
         int numberOfObjects = PlayerPrefs.GetInt("DistinctiveNumber");
         for (int i = 1; i <= numberOfObjects; i++)
         {
-
-            GameObject go = GameObject.Find(i.ToString());
-            Renderer renderer = go.GetComponent<Renderer>();
-            if (go.name == id.ToString() )
+            //Check if the key exists
+            if (PlayerPrefs.HasKey(i.ToString()))
             {
-                //change color here to cyan
-                renderer.material.color = new Color(0, 1, 1, 1);
+                //Find the gameobject
+                GameObject go = GameObject.Find(i.ToString());
+                //Create a reference to DistinctiveObjectData component
+                DistinctiveObjectData distinctiveObjectData_ = go.GetComponent<DistinctiveObjectData>();
+                //Check if the selected object is an arrow
+                if (distinctiveObjectData_.type == 1)
+                {
+                    //Get the children of the arrow prefab
+                    GameObject childArrowObject1 = go.transform.GetChild(0).gameObject;
+                    GameObject childArrowObject2 = go.transform.GetChild(1).gameObject;
+                    //Create references to the renderers of the children
+                    Renderer rendererChildObject1 = childArrowObject1.GetComponent<MeshRenderer>();
+                    Renderer rendererChildObject2 = childArrowObject2.GetComponent<MeshRenderer>();
+                    //Among all the objects, only selected object will have the color cyan
+                    if (go.name == id.ToString())
+                    {
+                        //Change color to cyan
+                        rendererChildObject1.material.color = new Color(0, 1, 1, 1);
+                        rendererChildObject2.material.color = new Color(0, 1, 1, 1);
+                    }
+                    else
+                    {
+                        //Set the color to default for all 'unchosen' arrows
+                        rendererChildObject1.material.color = new Color(1, 1, 1, 1);
+                        rendererChildObject2.material.color = new Color(1, 1, 1, 1);
+                    }
+
+                }
+                //If the object is not an arrow
+                else
+                {
+                    //Create a reference to the renderer component of the object
+                    Renderer renderer = go.GetComponent<Renderer>();
+                    //Among all the objects, only selected object will have the color cyan
+                    if (go.name == id.ToString())
+                    {
+                        //change color to cyan
+                        renderer.material.color = new Color(0, 1, 1, 1);
+                    }
+                    else
+                    {
+                        //set the colour default for all other 'unchosen' objects
+                        renderer.material.color = new Color(1, 1, 1, 1);
+
+                    }
+
+                }
+              
+
             }
             else
             {
-                //set the colour default for all other 'unchosen' objects
-                renderer.material.color = new Color(1, 1, 1, 1);
-               
+
             }
+            
+            
+            
+            
+
         }
 
     }
@@ -435,8 +615,20 @@ public class SelectObject : InstantiationObject
 
     public void DeleteObject()
     {
-        string keyToBeDeleted;
-        PlayerPrefs.DeleteKey("");
+        GameObject go = GameObject.Find(tag);
+        Destroy(go);
+        try
+        {
+            PlayerPrefs.DeleteKey(tag);
+            Debug.Log("You have deleted the object : " + tag);
+        }
+        catch
+        {
+            Debug.Log("You need to select an object to delete");
+            
+        }
+        
+       
 
 
     }
@@ -468,16 +660,15 @@ public class SelectObject : InstantiationObject
                 //Debug.Log("Hit GameObject Position Z is: " + HitObjectGO.transform.position.z);
 
                 //Get GameObject and log its id
-                DistinctiveSphereData distinctiveSphereData_ = HitObjectGO.GetComponent<DistinctiveSphereData>();
+                DistinctiveObjectData distinctiveObjectData_ = HitObjectGO.GetComponent<DistinctiveObjectData>();
                 //Get the distinctive id and hold it in a string variable for later use when accessing the touched gameobject
-                tag = distinctiveSphereData_.id.ToString();
-                //Change the color of the selected object while setting the color for all other objects to default
-                HighlightSelectedObject(distinctiveSphereData_.id);
-
-
+                tag = distinctiveObjectData_.id.ToString();
+                //Change the gameobjects name before calling the HighlightSelectedObject function
                 HitObjectGO.name = tag;
-                
-                Debug.Log("Hit GameObject saved ID: " + distinctiveSphereData_.id);
+                //Change the color of the selected object while setting the color for all other objects to default
+                HighlightSelectedObject(distinctiveObjectData_.id);
+
+                Debug.Log("Hit GameObject saved ID: " + distinctiveObjectData_.id);
                 Debug.Log("Pos X " + HitObjectGO.transform.position.x);
                 Debug.Log("Pos Y " + HitObjectGO.transform.position.y);
                 Debug.Log("Pos Z " + HitObjectGO.transform.position.z);

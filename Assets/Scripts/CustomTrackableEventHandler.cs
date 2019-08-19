@@ -128,44 +128,164 @@ public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventH
             }*/
 #endregion
 #endif   
+
             if (PlayerPrefs.HasKey("DistinctiveNumber"))
             {
                 int dinstinctiveNumber = PlayerPrefs.GetInt("DistinctiveNumber");
+                int sphereType = 0;
+                int arrowType = 1;
+                int cubeType = 2;
                 GameObject MyGameObject;
                 for (int counter = 1; counter <= dinstinctiveNumber; counter++)
                 {
-                    Dictionary<string, float> dict_ = new Dictionary<string, float>();
-                    string counterString_ = counter.ToString();
-                    string stringHolder = PlayerPrefs.GetString(counterString_);
-                    dict_ = ConvertStringToDict(stringHolder);
-                    //instantiate prefab instance 
-                    MyGameObject = Instantiate(ExistingPrefabSphere);
-                    //Assign its name
-                    MyGameObject.name = counterString_;
-                    //set the image target as parent of prefab instance
-                    MyGameObject.transform.parent = ImageTarget.transform;
-                    //Set the local location values of the instance using the information being held in the dictionaries
-                    MyGameObject.transform.localPosition = new Vector3(dict_["PosX"] , dict_["PosY"], dict_["PosZ"]);
-                    //Set its rotation to default
-                    MyGameObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
-                    //Only render step 1
-                    //If dict_["step_no"]!= 1
-                    //Disable renderer
-                    if (dict_["StepValue"] != 1f)
+                    //Check if the key exists
+                    if (PlayerPrefs.HasKey(counter.ToString()))
                     {
-                        //Disable renderer and collider components of the object
-                        //GameObject go = GameObject.Find(counterString_);
-                        Renderer renderer = MyGameObject.GetComponent<MeshRenderer>();
-                        Collider collider = MyGameObject.GetComponent<Collider>();
-                        renderer.enabled = false;
-                        collider.enabled = false;
+                        //Create a dictionary
+                        Dictionary<string, float> dict_ = new Dictionary<string, float>();
+                        //Hold the string version of the counter
+                        string counterString_ = counter.ToString();
+                        //Hold the  "key" name of the string, which is equal to the counter in every iteration
+                        string stringHolder = PlayerPrefs.GetString(counterString_);
+                        //Convert the string content to the dictionary 
+                        dict_ = ConvertStringToDict(stringHolder);
+                        //If the object is sphere  instatiate a sphere prefab
+                        if (dict_["Type"] == sphereType)
+                        {
+                           
+                            //instantiate prefab instance 
+                            MyGameObject = Instantiate(ARObjectsArray[sphereType]);
+                            //Assign its name
+                            MyGameObject.name = counterString_;
+                            //set the image target as parent of prefab instance
+                            MyGameObject.transform.parent = ImageTarget.transform;
+                            //Set the local location values of the instance using the information being held in the dictionaries
+                            MyGameObject.transform.localPosition = new Vector3(dict_["PosX"], dict_["PosY"], dict_["PosZ"]);
+                            
+                            //Set its rotation to default
+                            MyGameObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                            //Only render step 1
+                            //If dict_["step_no"]!= 1
+                            //Disable renderer
+                            if (dict_["StepValue"] != 1f)
+                            {
+                                //Disable renderer and collider components of the object
+                               
+                                Renderer renderer = MyGameObject.GetComponent<MeshRenderer>();
+                                Collider collider = MyGameObject.GetComponent<Collider>();
+                                //If not in the first step disable its renderer and collider
+                                renderer.enabled = false;
+                                collider.enabled = false;
+                            }
+
+
+                            DistinctiveObjectData distinctiveObjectData_ = MyGameObject.GetComponent<DistinctiveObjectData>();
+                            distinctiveObjectData_.id = counter;
+                            //Assign its type value according to the dictionary
+                            distinctiveObjectData_.type = dict_["Type"];
+
+                            //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
+                            MyGameObject.layer = 9;
+                            
+                        }
+                        else if (dict_["Type"] == arrowType)//Arrow object
+                        {
+                            
+                            //instantiate prefab instance 
+                            MyGameObject = Instantiate(ARObjectsArray[arrowType]);
+                            //Assign its name
+                            MyGameObject.name = counterString_;
+                            
+                            //set the image target as parent of prefab instance
+                            MyGameObject.transform.parent = ImageTarget.transform;
+                            //Set the local location values of the instance using the information being held in the dictionaries
+                            MyGameObject.transform.localPosition = new Vector3(dict_["PosX"], dict_["PosY"], dict_["PosZ"]);
+                            //Set its rotation to default
+                            MyGameObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                            //Only render step 1
+                            //If dict_["step_no"]!= 1
+                            //Disable renderer
+                            if (dict_["StepValue"] != 1f)
+                            {
+                                //Disable renderer and collider components of the object
+                                //Get the children of the arrow prefab
+                                GameObject childArrowObject1 = MyGameObject.transform.GetChild(0).gameObject;
+                                GameObject childArrowObject2 = MyGameObject.transform.GetChild(1).gameObject;
+                                //Create references to the child object renderers and colliders
+                                Renderer rendererChildObject1 = childArrowObject1.GetComponent<MeshRenderer>();
+                                Renderer rendererChildObject2 = childArrowObject2.GetComponent<MeshRenderer>();
+                                Collider collider = MyGameObject.GetComponent<Collider>();
+                                //Disable renderers of the children and collider of the prefab
+                                rendererChildObject1.enabled = false;
+                                rendererChildObject2.enabled = false;
+                                collider.enabled = false;
+                            }
+
+
+                            DistinctiveObjectData distinctiveObjectData_ = MyGameObject.GetComponent<DistinctiveObjectData>();
+                            distinctiveObjectData_.id = counter;
+                            //Assign its type value according to the dictionary
+                            distinctiveObjectData_.type = dict_["Type"];
+                            //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
+                            MyGameObject.layer = 9;
+
+
+
+
+                        }
+                        else if (dict_["Type"] == cubeType)//cube object
+                        {
+                            
+                            //instantiate prefab instance 
+                            MyGameObject = Instantiate(ARObjectsArray[cubeType]);
+                            //Assign its name
+                            MyGameObject.name = counterString_;
+                            //set the image target as parent of prefab instance
+                            MyGameObject.transform.parent = ImageTarget.transform;
+                            //Set the local location values of the instance using the information being held in the dictionaries
+                            MyGameObject.transform.localPosition = new Vector3(dict_["PosX"], dict_["PosY"], dict_["PosZ"]);
+                            //Set its rotation to default
+                            MyGameObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
+                            //Only render step 1
+                            //If dict_["step_no"]!= 1
+                            //Disable renderer
+                            if (dict_["StepValue"] != 1f)
+                            {
+                                //Disable renderer and collider components of the object
+                               
+                                Renderer renderer = MyGameObject.GetComponent<Renderer>();
+                                Collider collider = MyGameObject.GetComponent<Collider>();
+                                renderer.enabled = false;
+                                collider.enabled = false;
+                            }
+
+
+                            DistinctiveObjectData distinctiveObjectData_ = MyGameObject.GetComponent<DistinctiveObjectData>();
+                            distinctiveObjectData_.id = counter;
+                            distinctiveObjectData_.type = dict_["Type"];
+                            //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
+                            MyGameObject.layer = 9;
+
+
+
+                        }
+                      
+                        
+                    }
+                    else
+                    {
+
+
                     }
                     
+                        
+                    
+                    
+                    
 
-                    DistinctiveSphereData distinctiveSphereData_ = MyGameObject.GetComponent<DistinctiveSphereData>();
-                    distinctiveSphereData_.id = counter;
-                    //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
-                    MyGameObject.layer = 9;
+
+                    
+                  
 
                  
                 }
