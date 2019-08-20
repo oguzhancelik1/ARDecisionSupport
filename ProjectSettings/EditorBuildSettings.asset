@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SamerScene.unity
+    path: Assets/Scenes/MainScene.unity
     guid: 7eb6d91f10dd11240a1e58e5fb43291c
   m_configObjects: {}

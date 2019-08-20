@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vuforia;
 
-public class CustomTrackableEventHandler : InstantiationObject, ITrackableEventHandler
+public class CustomTrackableEventHandler : MainManager, ITrackableEventHandler
 {
     //public GameObject ExistingPrefab;
     //public GameObject ImageTarget;
