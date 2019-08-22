@@ -18,8 +18,6 @@ using Vuforia;
 /// </summary>
 public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandler
 {
-    public GameObject ExistingPrefab;
-    public GameObject ImageTarget;
     #region PROTECTED_MEMBER_VARIABLES
 
     protected TrackableBehaviour mTrackableBehaviour;
@@ -105,39 +103,6 @@ public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandle
             // Enable canvas':
             foreach (var component in canvasComponents)
                 component.enabled = true;
-            #region previous version
-            //Restore Saved position data
-            //If the restored data are all zeros, ignore
-            //if (playerprefs.getfloat("transformposx") == 0
-            //    && playerprefs.getfloat("transformposy") == 0
-            //    && playerprefs.getfloat("transformposz") == 0)
-            //{
-            //    debug.log("all restored data are zeros.");
-            //}
-            //else //there are valid position data
-            //{
-            //    debug.log("there are valid data restored.");
-
-            //    //instantiate a new gameobject
-            //    gameobject prefabinstance;
-            //    prefabinstance = instantiate(existingprefab);
-
-            //    //set the imagetarget as a parent
-            //    prefabinstance.transform.parent = imagetarget.transform;
-
-            //    //set the local position of the newly created gameobject into the ones in playerprefs
-            //    prefabinstance.transform.localposition = new vector3(playerprefs.getfloat("transformposx"), playerprefs.getfloat("transformposy"), playerprefs.getfloat("transformposz"));
-            //    // string str = playerprefs.getstring("sphere");
-
-            //    //set the rotation to zeros
-            //    prefabinstance.transform.localrotation = new quaternion(0, 0, 0, 0);
-            //    //set the layer for raycast masking
-            //    prefabinstance.layer = 9;
-            //}
-            #endregion
-            
-
-
         }
     }
 
