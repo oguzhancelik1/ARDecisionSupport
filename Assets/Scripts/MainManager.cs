@@ -223,36 +223,148 @@ public class MainManager : MonoBehaviour
 
         //INSTANTIATE NEW OBJECT and save the type attribute
         NewGameObject = Instantiate(ARObjectsArray[IndexOfObjectToBeCreated]);
-        FillDictionary(NewDictionary, "Type", IndexOfObjectToBeCreated);
+        //FillDictionary(NewDictionary, "Type", IndexOfObjectToBeCreated);
 
         //Set object name to the new number of objects
         string NewObjectID = NumberOfObjects.ToString();
         NewGameObject.name = NewObjectID;
-        FillDictionary(NewDictionary, "ID", float.Parse(NewObjectID));
+        //FillDictionary(NewDictionary, "ID", float.Parse(NewObjectID));
 
         //Fill the step value of the object with the step it is created in
-        FillDictionary(NewDictionary, "StepValue", CurrentStep);
+        //FillDictionary(NewDictionary, "StepValue", CurrentStep);
 
         //Set the image target as parent
         NewGameObject.transform.parent = ImageTarget.transform;
 
         //Set the local position and save it
         NewGameObject.transform.localPosition = new Vector3(NewGOPositionShift, 0f, 0f);
-        FillDictionary(NewDictionary, "PosX", NewGameObject.transform.localPosition.x);
-        FillDictionary(NewDictionary, "PosY", NewGameObject.transform.localPosition.y);
-        FillDictionary(NewDictionary, "PosZ", NewGameObject.transform.localPosition.z);
+        //FillDictionary(NewDictionary, "PosX", NewGameObject.transform.localPosition.x);*************
+        //FillDictionary(NewDictionary, "PosY", NewGameObject.transform.localPosition.y);************
+        //FillDictionary(NewDictionary, "PosZ", NewGameObject.transform.localPosition.z);************
 
         //Increment the PositionShift to avoid multiple objects on the same spot when creating another object
         NewGOPositionShift = NewGOPositionShift + MOVING_STEP;
 
         //set every NewGameObject in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
         NewGameObject.layer = 9;
+        //////////******************************
+        DistinctiveObjectData distinctiveObjectData = NewGameObject.GetComponent<DistinctiveObjectData>();
+        
+      
+        distinctiveObjectData.type = IndexOfObjectToBeCreated;
+        /////////////************************
+        ///
 
         //Convert dictionary to string
-        String StringOfObjectData = ConvertDictToString(NewDictionary);
+        //String StringOfObjectData = ConvertDictToString(NewDictionary);**************
 
         //Save the stringified dictionary by the its ID
+        //PlayerPrefs.SetString(NewObjectID, StringOfObjectData);*****************
+    }
+    public void ReleaseObject()
+    {
+        Dictionary<string, float> NewDictionary = new Dictionary<string, float>();
+        
+   
+        //Find the selected game object
+        GameObject ObjectToRelease = GameObject.Find(SelectedGameObject);
+
+        //Get its type value using the DistinctiveObjectData component. Hold the value in a float variable
+        DistinctiveObjectData distinctiveObjectData = ObjectToRelease.GetComponent<DistinctiveObjectData>();
+        float TypeValue = (float)distinctiveObjectData.type;
+
+        //Fill in the type key in the dictionary with the type value
+        FillDictionary(NewDictionary, "Type", TypeValue);
+
+        //Assign the object name to the ID value, then fill the dictionary 
+        string NewObjectID = ObjectToRelease.name;
+        FillDictionary(NewDictionary, "ID", float.Parse(NewObjectID));
+
+        //Assıgn the step value ın which the object ıs released
+        FillDictionary(NewDictionary, "StepValue", CurrentStep);
+      
+        //After release, the object should go back to the default color white
+        Renderer goRenderer = ObjectToRelease.GetComponent<MeshRenderer>();
+        goRenderer.material.color = new Color(1, 1, 1, 1);
+
+        //Assıgn the image target as the parent
+        ObjectToRelease.transform.parent = ImageTarget.transform;
+
+        //Fill the position data to the dictionary
+        FillDictionary(NewDictionary, "PosX", ObjectToRelease.transform.localPosition.x);
+        FillDictionary(NewDictionary, "PosY", ObjectToRelease.transform.localPosition.y);
+        FillDictionary(NewDictionary, "PosZ", ObjectToRelease.transform.localPosition.z);
+        
+        //Save the number of objects that were released
+        PlayerPrefs.SetInt("NumberOfObjects", NumberOfObjects);
+
+        //Convert dictionary to string then assign to a variable
+        string StringOfObjectData = ConvertDictToString(NewDictionary);
+        Debug.Log(StringOfObjectData);
+
+        ////Save the stringified dictionary
         PlayerPrefs.SetString(NewObjectID, StringOfObjectData);
+        
+    }
+
+    //Cancel the new object creation without releasing it.
+    //Cancel the object selection, it will go back to the location where it was selected.
+    public void CancelCreationOrSelection()
+    {
+        //Find the ARCamera in the scene
+        Camera ARCamera = GameObject.Find("ARCamera").GetComponent<Camera>();
+       
+        //Loop to iterate through all the objects created since the beginning starting from 1
+        for (int counter = 1; counter <= NumberOfObjects; counter++)
+        {
+            //Find the game object with the name counter
+            GameObject go = GameObject.Find(counter.ToString());
+            
+            //If the game object exists with the name counter
+            if (go != null)
+            {
+                //If ARCamera is the parent of the of the object
+                if (go.transform.parent == ARCamera.transform)
+                {
+                    //If the object was created and saved earlier, it means the object acquired is selected by the user
+                    if (PlayerPrefs.HasKey(counter.ToString()))
+                    {
+                        //Get the renderer component of the selected object
+
+                        Renderer goRenderer = go.GetComponent<MeshRenderer>();
+                        //Create a dictionary to retrieve the values of the object from its string
+                        Dictionary<string, float> dict = new Dictionary<string, float>();
+                        dict = ConvertStringToDict(PlayerPrefs.GetString(counter.ToString()));
+                        
+                        //Selection is going to be canceled so the color of the object should go back to the default
+                        goRenderer.material.color = new Color(1, 1, 1, 1);
+                        
+                        //Set the image target parent and place it where it used to be 
+                        go.transform.parent = ImageTarget.transform;
+                        go.transform.localPosition = new Vector3(dict["PosX"], dict["PosY"], dict["PosZ"]);
+                    }
+
+                    //If a string does not exist, this object was never saved
+                    else
+                    {
+                        //Delete the object 
+                        Destroy(go);
+                    }
+
+                }
+                else
+                {
+                    //No object was created or selected. Thus nothing to reverse
+                }
+
+            }
+            
+         
+        }
+
+
+
+
     }
     #endregion
 
@@ -498,22 +610,31 @@ public class MainManager : MonoBehaviour
     //Function to change the color of the selected object, it will also set the color of 'unchosen' objects to default
     public void HighlightSelectedObject(string id)
     {
+        //Find the ARCamera in the scene 
+        Camera ARCamera = GameObject.Find("ARCamera").GetComponent<Camera>();
+
+        //Find the created and released object number since the beginning
         int numberOfObjects = PlayerPrefs.GetInt("NumberOfObjects");
+
+        //Loop to iterate through the objects
         for (int i = 1; i <= numberOfObjects; i++)
         {
-            //Check if the key exists or this is the first created object and its not saved yet
-            if (PlayerPrefs.HasKey(i.ToString()) || NumberOfObjects ==1)
+            //Find the gameobject
+            GameObject go = GameObject.Find(i.ToString());
+            if (go != null)
             {
-                //Find the gameobject
-                GameObject go = GameObject.Find(i.ToString());
-                
                 //Create a reference to the renderer component of the object
                 Renderer renderer = go.GetComponent<Renderer>();
+
                 //Among all the objects, only selected object will have the color cyan
                 if (go.name == id)
                 {
                     //change color to cyan
                     renderer.material.color = new Color(0, 1, 1, 1);
+
+                    //Change the parent. Set the ARCamera as the new parent. Then set its position to 0,0,1
+                    go.transform.parent = ARCamera.transform;
+                    go.transform.localPosition = new Vector3(0, 0, 1);
                 }
                 else
                 {
@@ -523,17 +644,25 @@ public class MainManager : MonoBehaviour
 
                 //Display the move buttons
                 MovementButtons.SetActive(true);
-            }
+
+            } 
+         
+            
         }
     }
 
     //Function to disable all move functions for the objects when next or previous buttons are clicked.
-    //When one of the next or previous buttons are clicked value of the tag variable(just a string variable to hold the name)  
+    //When one of the next or previous buttons are clicked, value of the SelectedGameObject,
     //should be set to something that a gameobject name can never be.
     public void DeselectObject()
     {
+        //Set the name 
         SelectedGameObject = "ImpossibleName";
+
+        //Find the created and released object number since the beginning
         int numberOfObjects = PlayerPrefs.GetInt("NumberOfObjects");
+
+        //Loop to iterate through the objects
         for (int i = 1; i <= numberOfObjects; i++)
         {
             //Check if the key exists or this is the first created object and its not saved yet
@@ -557,15 +686,30 @@ public class MainManager : MonoBehaviour
 
     public void DeleteObject()
     {
+        //Find the selected game object
         GameObject go = GameObject.Find(SelectedGameObject);
-        if(go!= null)
+
+        //If the game object with such name exists
+        if (go!= null)
         {
+            //Delete the object
             Destroy(go);
+
+            //Delete its saved string
             PlayerPrefs.DeleteKey(SelectedGameObject);
         }
         DeselectObject();
     }
     #endregion
+    public void ResetPlayerPrefs()
+    {
+
+        PlayerPrefs.DeleteAll();
+
+
+    }
+    
+
 
     #region Unity Functions
     void Start()
@@ -612,6 +756,7 @@ public class MainManager : MonoBehaviour
 
                     //Get the distinctive id and hold it in a string variable for later use when accessing the touched gameobject
                     SelectedGameObject = HitObjectGO.name;
+                    Debug.Log("Selected object was : "+ SelectedGameObject);
 
                     //Change the color of the selected object while setting the color for all other objects to default
                     HighlightSelectedObject(SelectedGameObject);
