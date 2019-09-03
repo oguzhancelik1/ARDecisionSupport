@@ -74,6 +74,10 @@ public class CustomTrackableEventHandler : MainManager, ITrackableEventHandler
 
     protected virtual void OnTrackingFound()
     {
+        //VuforiaARController.Instance.SetWorldCenterMode(VuforiaARController.WorldCenterMode.FIRST_TARGET);
+        //GameObject ImageTargetGO = GameObject.Find("ImageTarget");
+        //ImageTargetGO.transform.position = new Vector3(0f, 0f, 0f);
+
         //Display Canvas Children
         GameObject MainCanvas = GameObject.Find("Canvas");
         foreach (Transform  child in MainCanvas.transform)
@@ -86,6 +90,7 @@ public class CustomTrackableEventHandler : MainManager, ITrackableEventHandler
 
         //Hide the ImageTarget Status text
         ImageTargetStatusText.SetActive(false);
+        GrabObjectWarning.SetActive(false);
 
         if (mTrackableBehaviour)
         {
@@ -115,9 +120,9 @@ public class CustomTrackableEventHandler : MainManager, ITrackableEventHandler
                             //Assign its name
                             MyGameObject.name = counterString_;
                             //set the image target as parent of prefab instance
-                            MyGameObject.transform.parent = this.transform;
+                            //MyGameObject.transform.parent = this.transform;
                             //Set the local location values of the instance using the information being held in the dictionaries
-                            MyGameObject.transform.localPosition = new Vector3(dict_["PosX"], dict_["PosY"], dict_["PosZ"]);
+                            MyGameObject.transform.position = new Vector3(dict_["PosX"], dict_["PosY"], dict_["PosZ"]);
 
                             //set every prefab instance in layer 9 to make sure that they are the only collidable objects in the scene when raycasting 
                             MyGameObject.layer = 9;
@@ -129,22 +134,37 @@ public class CustomTrackableEventHandler : MainManager, ITrackableEventHandler
                         GameObject go;
                         go = GameObject.Find(counter.ToString());
 
-                        // Get the Dictionary of this Object
-                        Dictionary<string, float> ObjectDictionary = ConvertStringToDict(PlayerPrefs.GetString(counter.ToString()));
-
-                        //Compare current step and the object's step value
-                        if (ObjectDictionary["StepValue"] == GetCurrentStep())
+                        if (PlayerPrefs.HasKey(counter.ToString()))
                         {
-                            //Enable renderer and collider components of the object
-                            go.GetComponent<MeshRenderer>().enabled = true;
-                            go.GetComponent<Collider>().enabled = true;
+                            // Get the Dictionary of this Object
+                            Dictionary<string, float> ObjectDictionary = ConvertStringToDict(PlayerPrefs.GetString(counter.ToString()));
+
+                            //Compare current step and the object's step value
+                            if (ObjectDictionary["StepValue"] == GetCurrentStep())
+                            {
+                                //Enable renderer and collider components of the object
+                                go.GetComponent<MeshRenderer>().enabled = true;
+                                go.GetComponent<Collider>().enabled = true;
+                            }
+                            else
+                            {
+                                //Disable renderer and collider components of the object
+                                go.GetComponent<MeshRenderer>().enabled = false;
+                                go.GetComponent<Collider>().enabled = false;
+                            }
+
                         }
                         else
                         {
-                            //Disable renderer and collider components of the object
-                            go.GetComponent<MeshRenderer>().enabled = false;
-                            go.GetComponent<Collider>().enabled = false;
+
+
                         }
+                        
+
+
+                        
+
+                       
                     }
                 }
             }
@@ -160,11 +180,21 @@ public class CustomTrackableEventHandler : MainManager, ITrackableEventHandler
 
     protected virtual void OnTrackingLost()
     {
+
+        //VuforiaARController.Instance.SetWorldCenterMode(VuforiaARController.WorldCenterMode.DEVICE);
+        //GameObject ARCamGO = GameObject.Find("ARCamera");
+        //ARCamGO.transform.position = new Vector3(0f, 0f, 0f);
+
+        
+        /*
         //Hide all Canvas Children
         GameObject MainCanvas = GameObject.Find("Canvas");
-        foreach (Transform child in MainCanvas.transform)
-        {
-            child.gameObject.SetActive(false);
+        if(MainCanvas!= null)
+        { 
+            foreach (Transform child in MainCanvas.transform)
+            {
+                child.gameObject.SetActive(false);
+            }
         }
 
         //Display the ImageTarget Status text
@@ -188,6 +218,7 @@ public class CustomTrackableEventHandler : MainManager, ITrackableEventHandler
             foreach (var component in canvasComponents)
                 component.enabled = false;
         }
+        */
     }
-#endregion // PROTECTED_METHODS
+    #endregion // PROTECTED_METHODS
 }

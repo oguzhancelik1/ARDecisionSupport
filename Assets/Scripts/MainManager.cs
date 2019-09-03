@@ -20,6 +20,8 @@ public class MainManager : MonoBehaviour
     public GameObject generativeSphere;
     public GameObject generativeArrow;
 
+    public GameObject GrabObjectWarning;
+
     //UI text to indicate the current Step
     public Text StepUIText;
 
@@ -29,11 +31,14 @@ public class MainManager : MonoBehaviour
 
     #region Private Variables
 
+    GameObject CreatedObjectGO = null;
     //holds whichever object is added from the generative objects
     GameObject currentObject;
 
     //Currently Selected GameObject
     private string SelectedGameObject;
+
+    private static GameObject ObjectToRelease;
 
     //Small shift value for each created gameobject to avoid multiple objects created on each other
     private float NewGOPositionShift = 0f;
@@ -41,6 +46,15 @@ public class MainManager : MonoBehaviour
     //Image target gameobject in the scene
     private GameObject ImageTarget;
 
+    //Position value of the camera when an object is selected
+    private Vector3 ARCameraPositionWhenObjectSelected;
+
+    private Vector3 ARCameraPositionWhenObjectReleased;
+
+    //Position value of the object when it is selected
+    private Vector3 objectPositionWhenSelected;
+
+  
     //Current Step (Starts from 1 always)
     public static int CurrentStep;
 
@@ -48,7 +62,10 @@ public class MainManager : MonoBehaviour
     {
         return CurrentStep;
     }
-    //Total number of created objects
+    //Total number of objects created
+    
+
+    //Total number of released objects
     private int NumberOfObjects;
     //Position shift for new objects
     private float instantiationPositionShift = 0;
@@ -93,9 +110,9 @@ public class MainManager : MonoBehaviour
     {
         //Debug.Log("String to be converted to Dict is: " + f);
         Dictionary<string, float> d = new Dictionary<string, float>();
-        string s = f; //= File.ReadAllText(f);
+
         // Divide all pairs (remove empty strings)
-        string[] tokens = s.Split(new char[] { ':', ',' });//, StringSplitOptions.RemoveEmptyEntries);
+        string[] tokens = f.Split(new char[] { ':', ',' });//, StringSplitOptions.RemoveEmptyEntries);
 
         // Walk through each item
         for (int i = 0; i < tokens.Length; i += 2)
@@ -103,17 +120,8 @@ public class MainManager : MonoBehaviour
             string name = tokens[i];
             string freq = tokens[i + 1];
 
-            // Parse the int (this can throw)
-            float count = float.Parse(freq);
             // Fill the value in the sorted dictionary
-            if (d.ContainsKey(name))
-            {
-                d[name] += count;
-            }
-            else
-            {
-                d.Add(name, count);
-            }
+            d.Add(name, float.Parse(freq));
         }
         return d;
     }
@@ -200,7 +208,7 @@ public class MainManager : MonoBehaviour
 
         //Increment Number of Saved Objects and save it
         NumberOfObjects++;
-        PlayerPrefs.SetInt("NumberOfObjects", NumberOfObjects);
+        //PlayerPrefs.SetInt("NumberOfObjects", NumberOfObjects);
 
         //FIND THE SELECTED TYPE TO BE CREATED
         //The index of the object to be created, 
@@ -234,10 +242,10 @@ public class MainManager : MonoBehaviour
         //FillDictionary(NewDictionary, "StepValue", CurrentStep);
 
         //Set the image target as parent
-        NewGameObject.transform.parent = ImageTarget.transform;
-
+        //NewGameObject.transform.parent = ImageTarget.transform;
+   
         //Set the local position and save it
-        NewGameObject.transform.localPosition = new Vector3(NewGOPositionShift, 0f, 0f);
+        NewGameObject.transform.position = new Vector3(NewGOPositionShift + ImageTarget.transform.position.x, ImageTarget.transform.position.y, ImageTarget.transform.position.z);
         //FillDictionary(NewDictionary, "PosX", NewGameObject.transform.localPosition.x);*************
         //FillDictionary(NewDictionary, "PosY", NewGameObject.transform.localPosition.y);************
         //FillDictionary(NewDictionary, "PosZ", NewGameObject.transform.localPosition.z);************
@@ -252,6 +260,8 @@ public class MainManager : MonoBehaviour
         
       
         distinctiveObjectData.type = IndexOfObjectToBeCreated;
+
+        CreatedObjectGO = NewGameObject;
         /////////////************************
         ///
 
@@ -263,11 +273,44 @@ public class MainManager : MonoBehaviour
     }
     public void ReleaseObject()
     {
+        Camera ARCamera = GameObject.Find("ARCamera").GetComponent<Camera>();
+
         Dictionary<string, float> NewDictionary = new Dictionary<string, float>();
+
+        //Get the position info of the ARCamera when the object was selected
+
+        //float x1 = ARCameraPositionWhenObjectSelected.x;
+        //float y1 = ARCameraPositionWhenObjectSelected.y;
+        //float z1 = ARCameraPositionWhenObjectSelected.z;
+
+        //Get the current ImageTarget position 
+
+        //float x2 = ImageTarget.transform.position.x;
+        //float y2 = ImageTarget.transform.position.y;
+        //float z2 = ImageTarget.transform.position.z;
+
+
+        //Get the object position info when it was selected
+
+        //float x0 = objectPositionWhenSelected.x;
+        //float y0 = objectPositionWhenSelected.y;
+        //float z0 = objectPositionWhenSelected.z;
+        //
+        //
+        ////Calculate new object position
+        ////Since the world center mode is 'FirstTarget', ImageTarget position values for x, y and z are going to be 0.
+        //
+        //float xFinalPosition =  ARCamera.transform.position.x - (x1 - x0);
+        //float yFinalPosition =  ARCamera.transform.position.y - (y1 - y0);
+        //float zFinalPosition =  ARCamera.transform.position.z - (z1 - z0);
+
+
         
-   
+
+
         //Find the selected game object
-        GameObject ObjectToRelease = GameObject.Find(SelectedGameObject);
+        ObjectToRelease = GameObject.Find(SelectedGameObject);
+        //ObjectToRelease.transform.position = ARCameraPositionWhenObjectReleased;
 
         //Get its type value using the DistinctiveObjectData component. Hold the value in a float variable
         DistinctiveObjectData distinctiveObjectData = ObjectToRelease.GetComponent<DistinctiveObjectData>();
@@ -282,18 +325,28 @@ public class MainManager : MonoBehaviour
 
         //Assıgn the step value ın which the object ıs released
         FillDictionary(NewDictionary, "StepValue", CurrentStep);
-      
+       
+
+        Vector3 Pos = ObjectToRelease.transform.position;
+        ObjectToRelease.transform.parent = null;
+
+        ObjectToRelease.transform.position = Pos;
+
+
         //After release, the object should go back to the default color white
         Renderer goRenderer = ObjectToRelease.GetComponent<MeshRenderer>();
+        goRenderer.enabled = true;
         goRenderer.material.color = new Color(1, 1, 1, 1);
 
-        //Assıgn the image target as the parent
-        ObjectToRelease.transform.parent = ImageTarget.transform;
+        //Assign the final position info to the Object to release
+        //ObjectToRelease.transform.position = new Vector3(xFinalPosition, yFinalPosition, zFinalPosition);
+
+        
 
         //Fill the position data to the dictionary
-        FillDictionary(NewDictionary, "PosX", ObjectToRelease.transform.localPosition.x);
-        FillDictionary(NewDictionary, "PosY", ObjectToRelease.transform.localPosition.y);
-        FillDictionary(NewDictionary, "PosZ", ObjectToRelease.transform.localPosition.z);
+        FillDictionary(NewDictionary, "PosX", ObjectToRelease.transform.position.x);   
+        FillDictionary(NewDictionary, "PosY", ObjectToRelease.transform.position.y);    
+        FillDictionary(NewDictionary, "PosZ", ObjectToRelease.transform.position.z);   
         
         //Save the number of objects that were released
         PlayerPrefs.SetInt("NumberOfObjects", NumberOfObjects);
@@ -304,9 +357,13 @@ public class MainManager : MonoBehaviour
 
         ////Save the stringified dictionary
         PlayerPrefs.SetString(NewObjectID, StringOfObjectData);
-        
-    }
 
+   
+
+        SelectionSuccessChecker = false;
+        HitObjectGO = null;
+    }
+  
     //Cancel the new object creation without releasing it.
     //Cancel the object selection, it will go back to the location where it was selected.
     public void CancelCreationOrSelection()
@@ -323,32 +380,42 @@ public class MainManager : MonoBehaviour
             //If the game object exists with the name counter
             if (go != null)
             {
+                //Get the renderer component of the selected object
+                Renderer goRenderer = go.GetComponent<MeshRenderer>();
+
                 //If ARCamera is the parent of the of the object
                 if (go.transform.parent == ARCamera.transform)
                 {
-                    //If the object was created and saved earlier, it means the object acquired is selected by the user
+                    //If the object was created and saved earlier, reverse its position back to where it was selected
                     if (PlayerPrefs.HasKey(counter.ToString()))
                     {
-                        //Get the renderer component of the selected object
+                       
 
-                        Renderer goRenderer = go.GetComponent<MeshRenderer>();
                         //Create a dictionary to retrieve the values of the object from its string
                         Dictionary<string, float> dict = new Dictionary<string, float>();
                         dict = ConvertStringToDict(PlayerPrefs.GetString(counter.ToString()));
                         
                         //Selection is going to be canceled so the color of the object should go back to the default
                         goRenderer.material.color = new Color(1, 1, 1, 1);
-                        
+
                         //Set the image target parent and place it where it used to be 
-                        go.transform.parent = ImageTarget.transform;
-                        go.transform.localPosition = new Vector3(dict["PosX"], dict["PosY"], dict["PosZ"]);
+                        go.transform.parent = null;
+                        go.transform.position = new Vector3(dict["PosX"], dict["PosY"], dict["PosZ"]);
+
+                        SelectionSuccessChecker = false;
                     }
 
                     //If a string does not exist, this object was never saved
                     else
                     {
-                        //Delete the object 
-                        Destroy(go);
+                        //Set its position back to the default place which is the image target position
+                        go.transform.position = new Vector3(0, 0, 0);
+
+                        //Set its color back to the default
+                        goRenderer.material.color = new Color(1, 1, 1, 1);
+
+                        //Set the flag to false 
+                        SelectionSuccessChecker = false;
                     }
 
                 }
@@ -363,7 +430,7 @@ public class MainManager : MonoBehaviour
         }
 
 
-
+        
 
     }
     #endregion
@@ -607,6 +674,8 @@ public class MainManager : MonoBehaviour
         UpdateRenderedObjects();
     }
 
+
+    float dist;
     //Function to change the color of the selected object, it will also set the color of 'unchosen' objects to default
     public void HighlightSelectedObject(string id)
     {
@@ -616,38 +685,72 @@ public class MainManager : MonoBehaviour
         //Find the created and released object number since the beginning
         int numberOfObjects = PlayerPrefs.GetInt("NumberOfObjects");
 
+
+        //*******************************************************************************************************
         //Loop to iterate through the objects
-        for (int i = 1; i <= numberOfObjects; i++)
+        //numberOfObjects represents number of objects that were released and saved.
+        //NumberOfObjects represents number of objects created on a single runtime.
+        //Adding the two values in the for loop ensures even if no object was saved we can still select when an object is first created
+        //*******************************************************************************************************
+
+        for (int i = 1; i <= numberOfObjects + NumberOfObjects; i++)
         {
             //Find the gameobject
             GameObject go = GameObject.Find(i.ToString());
+           
             if (go != null)
             {
+
+                Debug.Log("ARCamera y position : " + ARCamera.transform.position.y);
+                Debug.Log("go y position : " + go.transform.position.y);
+
+                Debug.Log("ARCamera x position : " + ARCamera.transform.position.x);
+                Debug.Log("go x position : " + go.transform.position.x);
+
+                Debug.Log("ARCamera z position : " + ARCamera.transform.position.z);
+                Debug.Log("go z position : " + go.transform.position.z);
+
+               
+                
                 //Create a reference to the renderer component of the object
                 Renderer renderer = go.GetComponent<Renderer>();
 
+                DistinctiveObjectData distinctiveObjectData = new DistinctiveObjectData();
+                
+                if(go.GetComponent<DistinctiveObjectData>() != null)
+                {
+                    if (go.name == id)
+                    {
+                        //change color to cyan
+                        renderer.material.color = new Color(0, 1, 1, 1);
+
+                        //Get the position of the object
+                        objectPositionWhenSelected = go.transform.position;
+
+                        dist = Vector3.Distance(objectPositionWhenSelected, ARCamera.transform.position);
+
+                        SelectionSuccessChecker = true;
+                        
+
+                        GrabObjectWarning.SetActive(false);
+                        CreatedObjectGO = null;
+                        
+
+                        //Hold the position vector of the ARCamera in the ARCameraPositionWhenObjectSelected variable
+                        //ARCameraPositionWhenObjectSelected = new Vector3(ARCamera.transform.position.x, ARCamera.transform.position.y, ARCamera.transform.position.z);
+                    }
+                    else
+                    {
+                        //set the colour default for all other 'unchosen' objects
+                        renderer.material.color = new Color(1, 1, 1, 1);
+                    }
+
+                    //Display the move buttons
+                    MovementButtons.SetActive(true);
+
+                }
                 //Among all the objects, only selected object will have the color cyan
-                if (go.name == id)
-                {
-                    //change color to cyan
-                    renderer.material.color = new Color(0, 1, 1, 1);
-
-                    //Change the parent. Set the ARCamera as the new parent. Then set its position to 0,0,1
-                    go.transform.parent = ARCamera.transform;
-                    go.transform.localPosition = new Vector3(0, 0, 1);
-                }
-                else
-                {
-                    //set the colour default for all other 'unchosen' objects
-                    renderer.material.color = new Color(1, 1, 1, 1);
-                }
-
-                //Display the move buttons
-                MovementButtons.SetActive(true);
-
-            } 
-         
-            
+            }
         }
     }
 
@@ -719,8 +822,8 @@ public class MainManager : MonoBehaviour
         MovementButtons.SetActive(false);
 
         CurrentStep = 1;
-        //Get the Main Camera GameObject
-        //cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        //Get the Main ARCamera GameObject
+        //cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<ARCamera>();
 
         //Find the ImageTarget gameobject
         ImageTarget = GameObject.Find("ImageTarget");
@@ -737,11 +840,21 @@ public class MainManager : MonoBehaviour
         }
     }
 
+    bool SelectionSuccessChecker = false;
+    
+    GameObject HitObjectGO = null;
+
+    float distancefromY = 0.20f;
+
     void Update()
     {
+        Camera ARCamera = GameObject.Find("ARCamera").GetComponent<Camera>();
+        
+        
         //HANDLING OF SELECTING OBJECTS
         if (Input.GetMouseButtonDown(0))
         {
+            
             //create ray and RaycastHit objects
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -751,22 +864,71 @@ public class MainManager : MonoBehaviour
             {
                 if(hit.transform.gameObject.layer == 9)
                 {
-                    //Get GameObject and log its position
-                    GameObject HitObjectGO = hit.transform.gameObject;
-
+                    HitObjectGO = hit.transform.gameObject;
                     //Get the distinctive id and hold it in a string variable for later use when accessing the touched gameobject
-                    SelectedGameObject = HitObjectGO.name;
-                    Debug.Log("Selected object was : "+ SelectedGameObject);
 
-                    //Change the color of the selected object while setting the color for all other objects to default
-                    HighlightSelectedObject(SelectedGameObject);
+                    //Check if the camera is close enough to the object
+                    if (hit.distance <= 1)
+                    {
+                        SelectedGameObject = HitObjectGO.name;
+                        Debug.Log("Selected object was : " + SelectedGameObject);
+
+                   
+                        //Change the color of the selected object while setting the color for all other objects to default
+
+                        HighlightSelectedObject(SelectedGameObject);
+
+                        HitObjectGO.transform.parent = ARCamera.transform;
+                        HitObjectGO.transform.localPosition = new Vector3(0,0,0.20f);
+
+                        //Set the warning message false when the distance condition is met
+
+                    }
+                    else
+                    {
+                        //Set the warning message true when distance condition is not met
+                        GrabObjectWarning.SetActive(true);
+                        SelectionSuccessChecker = false;
+                    }
                 }
                 else //Raycast doesn't collide with any objects
                 {
+                    
                     DeselectObject();
                 }
             }
         }
+
+        //Object pos it related to camera
+        //if (SelectionSuccessChecker && HitObjectGO != null)
+        //{
+
+        //    //float xFinalPosition = ARCamera.transform.position.x - (ARCameraPositionWhenObjectSelected.x - objectPositionWhenSelected.x);
+        //    //float yFinalPosition = ARCamera.transform.position.y - (ARCameraPositionWhenObjectSelected.y - objectPositionWhenSelected.y);
+        //    //float zFinalPosition = ARCamera.transform.position.z - (ARCameraPositionWhenObjectSelected.z - objectPositionWhenSelected.z);
+        //    //
+        //    //HitObjectGO.transform.position = new Vector3(xFinalPosition, yFinalPosition, zFinalPosition);
+        //    //Set the object position equal to the camera
+        //    //HitObjectGO.transform.position = ARCamera.transform.position + dist;
+        //    //HitObjectGO.transform.position = (HitObjectGO.transform.position - ARCamera.transform.position).normalized * dist + ARCamera.transform.position;
+            
+        //   // HitObjectGO.transform.position = new Vector3(ARCamera.transform.position.x, ARCamera.transform.position.y - 0.2f , ARCamera.transform.position.z);
+        //    //ARCameraPositionWhenObjectReleased = HitObjectGO.transform.position;         
+        //}
+        //Object position is related to the image target
+        if (CreatedObjectGO != null)
+        {
+            //Set the object position equal to the camera
+            CreatedObjectGO.transform.position = ImageTarget.transform.position;
+        }
+
+        //if( ObjectToRelease != null && ImageTarget != null)
+        //{
+            
+        //    ObjectToRelease.transform.position = ObjectToRelease.transform.position - ImageTarget.transform.position;
+        //}
+
+
     }
     #endregion
 }
